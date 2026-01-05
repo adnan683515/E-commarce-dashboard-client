@@ -1,0 +1,43 @@
+import { ChartNoAxesCombined, CircleDashed, Handbag, TrendingUp, Users } from 'lucide-react'
+import React from 'react'
+
+export default function DashboardGrid() {
+
+    const gridArray: string[] = ['Total Sales', 'Total Oders', 'Total Sellers', 'Products Pending']
+
+
+    return (
+
+        <div className='grid grid-cols-1  sm:grid-cols-2 md:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4  gap-x-[24px] gap-y-2'>
+
+
+            {
+                gridArray?.map((item: string) => {
+                    return <div className={`px-[14px]  flex flex-col  sm:gap-y-[10px] rounded-lg py-[16px] bg-gradient-to-r   ${item == 'Total Sales' ? 'from-[#68AAFF] to-[#288CE0]' : item.toLocaleLowerCase() == 'total oders' ? 'from-[#3AC4A5] to-[#1F9171]' : item == 'Total Sellers' ? 'from-[#FFB872] to-[#E46C3E]' : 'from-[#FF8984] to-[#F94943]'}`}>
+                        <h2 className='sm:text-[14px] text-white'> {item} </h2>
+
+                        <h1 className='sm:text-[24px]    tracking-[.1rem] text-white font-semibold'>$23,525</h1>
+
+                        <div className='flex justify-between'>
+
+                            <div className='flex  items-center gap-x-[4px]'>
+                                <TrendingUp size={20} className='text-white' />
+                                <h1 className= 'text-[10px] sm:text-[12px] text-white'>12% From the last Month</h1>
+                            </div>
+
+  
+                            {
+                                item == 'Total Sales' ?  <ChartNoAxesCombined size={48} className='text-gray-500 opacity-55' /> :  item == 'Total Sellers' ? <Users size={48} className='text-gray-500 opacity-55' /> :  item == 'Total Oders' ?   <Handbag  size={48} className='text-gray-500 opacity-55' /> : <CircleDashed  size={48} className='text-gray-500 opacity-55' />
+                            }
+
+                        </div>
+
+                    </div>
+                })
+            }
+
+
+
+        </div>
+    )
+}

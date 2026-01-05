@@ -4,6 +4,8 @@ import logo from "../../assets/logo.png"
 import { useNavigate } from "react-router"
 import ActionLoading from "../../components/Loading/ActionLoading"
 
+
+
 export default function ForgetPassword() {
     const [email, setEmail] = useState('')
     const [loading, setLoading] = useState(false)

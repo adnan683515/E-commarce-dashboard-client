@@ -9,13 +9,18 @@ const StepsChart = () => {
   useEffect(() => {
     if (!chartRef.current) return
 
+    // 1. Initialize Root
     const root = am5.Root.new(chartRef.current)
 
-    // Remove logo
-    root._logo?.dispose()
+    // Remove amCharts logo
+    if (root._logo) {
+      root._logo.dispose()
+    }
 
+    // Set themes
     root.setThemes([am5themes_Animated.new(root)])
 
+    // 2. Create Chart
     const chart = root.container.children.push(
       am5xy.XYChart.new(root, {
         panX: false,
@@ -23,30 +28,38 @@ const StepsChart = () => {
         wheelX: "none",
         wheelY: "none",
         paddingLeft: 0,
-        paddingRight: 20,
+        paddingRight: 10,
+        paddingTop: 20,
       })
     )
 
-    // Define the Purple Color used in your image
-    const themeColor = am5.color('#8979FF')
+    // Define consistent theme color
+    const themeColor = am5.color("#8979FF")
 
-    // X Axis
+    // 3. Create Axes
     const xRenderer = am5xy.AxisRendererX.new(root, {
       minGridDistance: 30,
     })
-    // Hide x-axis line and ticks to match the clean UI
-    xRenderer.grid.template.setAll({ strokeDasharray: [3, 3] })
+    
+    // Grid styling: dashed lines
+    xRenderer.grid.template.setAll({
+      strokeDasharray: [3, 3],
+      strokeOpacity: 0.1
+    })
 
     const xAxis = chart.xAxes.push(
       am5xy.CategoryAxis.new(root, {
         categoryField: "month",
         renderer: xRenderer,
+        tooltip: am5.Tooltip.new(root, {})
       })
     )
 
-    // Y Axis
     const yRenderer = am5xy.AxisRendererY.new(root, {})
-    yRenderer.grid.template.setAll({ strokeDasharray: [3, 3] })
+    yRenderer.grid.template.setAll({
+      strokeDasharray: [3, 3],
+      strokeOpacity: 0.1
+    })
 
     const yAxis = chart.yAxes.push(
       am5xy.ValueAxis.new(root, {
@@ -58,43 +71,49 @@ const StepsChart = () => {
       })
     )
 
-    // Series
+    // 4. Create Series
     const series = chart.series.push(
       am5xy.SmoothedXLineSeries.new(root, {
+        name: "Series",
         xAxis: xAxis,
         yAxis: yAxis,
         valueYField: "value",
         categoryXField: "month",
-        stroke: am5.color('#8979FF'), // <--- CHANGE THIS for the line border
+        stroke: themeColor,
+        // strokeWidth: 3, // Slightly thicker line
+        tooltip: am5.Tooltip.new(root, {
+          labelText: "{valueY}%"
+        })
       })
     )
-    // 🌊 Gradient Fill (Matches the image)
-series.fills.template.setAll({
-  visible: true,
-  fillOpacity: 0.05,
-})
-series.fills.template.set("fill", am5.color("#000000"))
 
-
-    // This adds a background color to the chart area
-    chart.set("background", am5.Rectangle.new(root, {
-      fill: am5.color(0xF3F4F6), // Light gray "body" color
-      fillOpacity: 0.5
-    }));
-
-    // 🔵 Bullets (White center, purple border)
-    series.bullets.push(() => {
-      return am5.Bullet.new(root, {
-        sprite: am5.Circle.new(root, {
-          radius: 5,
-          fill: am5.color('#8979FF'),
-          stroke: themeColor,
-          strokeWidth: 2,
-        }),
+    // --- GRADIENT FILL IMPLEMENTATION ---
+    series.fills.template.setAll({
+      visible: true,
+      fillOpacity: 0.5,
+      // Creates the fade-out effect
+      fillGradient: am5.LinearGradient.new(root, {
+        stops: [
+          { color: themeColor, opacity: 0.4 },
+          { color: themeColor, opacity: 0 }
+        ],
+        rotation: 90 // Vertical gradient
       })
     })
 
-    // Data points approximating your provided image
+    // 5. Add Bullets (White center, purple border)
+    series.bullets.push(() =>
+      am5.Bullet.new(root, {
+        sprite: am5.Circle.new(root, {
+          radius: 5,
+          fill: am5.color("#ffffff"), 
+          stroke: themeColor,          
+          strokeWidth: 2,
+        }),
+      })
+    )
+
+    // 6. Data
     const data = [
       { month: "Jan", value: 58 },
       { month: "Feb", value: 57 },
@@ -113,19 +132,21 @@ series.fills.template.set("fill", am5.color("#000000"))
     xAxis.data.setAll(data)
     series.data.setAll(data)
 
+    // 7. Animations
     series.appear(1000)
     chart.appear(1000, 100)
 
+    // Clean up
     return () => {
       root.dispose()
     }
   }, [])
 
   return (
-    <div className="p-6 bg-gray-50 flex justify-center">
+    <div className="w-full h-full flex items-center justify-center ">
       <div
         ref={chartRef}
-        className="w-full max-w-3xl h-[400px] bg-white rounded-2xl shadow-sm border border-gray-100"
+        className="w-full h-full bg-white rounded-3xl border border-gray-100  transition-all"
       />
     </div>
   )
