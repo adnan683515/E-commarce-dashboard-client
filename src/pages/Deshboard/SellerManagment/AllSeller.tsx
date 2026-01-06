@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Search, Filter, Eye, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router';
 
 interface Seller {
   id: string;
@@ -10,6 +11,8 @@ interface Seller {
 }
 
 const AllSeller: React.FC = () => {
+
+
   // Mock Data
   const initialSellers: Seller[] = Array(12).fill({
     name: 'TectGedgeHub',
@@ -26,9 +29,13 @@ const AllSeller: React.FC = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentSellers = initialSellers.slice(indexOfFirstItem, indexOfLastItem);
 
+
+
+
+
   return (
     <div className="bg-white p-6 rounded-2xl border border-gray-100  w-full font-sans">
-      
+
       {/* Top Header & Filters Section */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
         <h2 className="text-2xl font-bold text-gray-800">All Seller</h2>
@@ -40,7 +47,7 @@ const AllSeller: React.FC = () => {
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
           </select>
-          
+
           <button className="flex items-center gap-2 px-4 py-2.5 bg-[#C1E0F6] border border-gray-200 rounded-lg   hover:scale-95   transition-all  hover:bg-sky-300  duration-1000   cursor-pointer font-medium text-sm">
             <Filter size={16} />
             Filter
@@ -51,9 +58,9 @@ const AllSeller: React.FC = () => {
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search seller..." 
+            <input
+              type="text"
+              placeholder="Search seller..."
               className="pl-10 pr-4 py-2.5 bg-gray-50 border rounded-l-full rounded-r-full border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full lg:w-64 text-sm"
             />
           </div>
@@ -90,20 +97,23 @@ const AllSeller: React.FC = () => {
                   {seller.joinDate}
                 </td>
                 <td className="p-4 text-center">
-                  <span className={`px-3 py-1 rounded-full text-[11px] font-bold border uppercase tracking-wider ${
-                    seller.status === 'Approved' 
-                      ? 'bg-green-50 text-green-600 border-green-100' 
-                      : 'bg-orange-50 text-orange-600 border-orange-100'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-[11px] font-bold border uppercase tracking-wider ${seller.status === 'Approved'
+                    ? 'bg-green-50 text-green-600 border-green-100'
+                    : 'bg-orange-50 text-orange-600 border-orange-100'
+                    }`}>
                     {seller.status}
                   </span>
                 </td>
                 <td className="p-4">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="flex  px-[10px] text-[12px] items-center gap-1.5 py-[10px] text-white bg-[#2289C9] hover:scale-105 rounded-lg transition-all text-xs font-bold cursor-pointer">
-                      <Eye size={14} />
-                      View Details
-                    </button>
+
+
+                    <Link to={seller?.status == 'Approved' ? '/deshboard/sellerManagement/shopDetails/:id' : '/deshboard/sellerManagement/details/:id' }>
+                      <button className="flex  px-[10px] text-[12px] items-center gap-1.5 py-[10px] text-white bg-[#2289C9] hover:scale-105 rounded-lg transition-all text-xs font-bold cursor-pointer">
+                        <Eye size={14} />
+                        View Details
+                      </button></Link>
+
                     <button className="flex items-center gap-1.5 px-[10px] py-[10px] text-white bg-[#128635] hover:scale-105 text-[12px] rounded-lg transition-all text-xs font-bold cursor-pointer shadow-sm shadow-green-200">
                       <CheckCircle size={14} />
                       Approve
@@ -126,9 +136,8 @@ const AllSeller: React.FC = () => {
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className={`p-2 rounded-lg border border-gray-200 transition-all cursor-pointer ${
-              currentPage === 1 ? 'opacity-40 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-100 text-gray-600'
-            }`}
+            className={`p-2 rounded-lg border border-gray-200 transition-all cursor-pointer ${currentPage === 1 ? 'opacity-40 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-100 text-gray-600'
+              }`}
           >
             <ChevronLeft size={18} />
           </button>
@@ -137,11 +146,10 @@ const AllSeller: React.FC = () => {
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
-              className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all cursor-pointer ${
-                currentPage === i + 1
-                  ? 'bg-[#2289C9] text-white shadow-md shadow-blue-200'
-                  : 'text-gray-500 hover:bg-gray-50 border border-transparent'
-              }`}
+              className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all cursor-pointer ${currentPage === i + 1
+                ? 'bg-[#2289C9] text-white shadow-md shadow-blue-200'
+                : 'text-gray-500 hover:bg-gray-50 border border-transparent'
+                }`}
             >
               {i + 1}
             </button>
@@ -150,9 +158,8 @@ const AllSeller: React.FC = () => {
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className={`p-2 rounded-lg border border-gray-200 transition-all cursor-pointer ${
-              currentPage === totalPages ? 'opacity-40 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-100 text-gray-600'
-            }`}
+            className={`p-2 rounded-lg border border-gray-200 transition-all cursor-pointer ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-100 text-gray-600'
+              }`}
           >
             <ChevronRight size={18} />
           </button>

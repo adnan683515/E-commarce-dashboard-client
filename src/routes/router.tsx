@@ -14,6 +14,8 @@ import Payout from "../pages/Deshboard/Payout/Payout";
 import Catalog from "../pages/Deshboard/Catalog/Catalog";
 import Analytics from "../pages/Deshboard/Analytics/Analytics";
 import Settings from "../pages/Deshboard/Settings/Settings";
+import SellerDetailsPage from "../pages/Deshboard/SellerManagment/SellerDetailsPage";
+import ShopDetails from "../pages/Deshboard/SellerManagment/ShopDetails";
 
 
 
@@ -41,7 +43,16 @@ export const router = createBrowserRouter([
             }, {
                 path: '/deshboard/sellerManagement',
                 Component: SellerManagment
-            }, {
+            },{
+                path : '/deshboard/sellerManagement/details/:id',
+                Component : SellerDetailsPage
+            } 
+            ,{
+                path : '/deshboard/sellerManagement/shopDetails/:id',
+                Component : ShopDetails
+            },
+            
+            {
                 path: '/deshboard/BuyerManagment',
                 Component: BuyerManagment
             },{
