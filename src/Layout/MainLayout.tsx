@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { useState } from "react";
 import { Menu, X, BarChart2, Settings, LayoutDashboard, ShoppingCart, Wallet, ChartNoAxesCombined, Handbag, Settings2, SlidersHorizontal, LogOut } from "lucide-react";
 import NavItem from "./NavItem";
@@ -6,10 +6,16 @@ import NavItem from "./NavItem";
 
 const DashboardLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const navigate = useNavigate()
   const location = useLocation()
 
   const pathname = location.pathname
+
+
+  const logutFromapp = () => {
+    navigate('/')
+
+  }
 
 
   return (
@@ -105,7 +111,7 @@ const DashboardLayout = () => {
         <div className="flex justify-center items-center ">
           <div className="p-4 absolute  bottom-3 bg-white/20 backdrop-blur-2xl rounded-lg border-t border-white/10 flex items-center gap-3">
             <img
-              src="human.png" 
+              src="human.png"
               alt="Profile"
               className="w-10 h-10 rounded-full object-cover"
             />
@@ -115,7 +121,7 @@ const DashboardLayout = () => {
             </div>
             <button
               className="p-2 rounded hover:cursor-pointer hover:bg-white/30 rounded-lg transition-colors"
-              onClick={() => console.log("Logout")}
+              onClick={() => logutFromapp()}
             >
               <LogOut className="text-red-500" />
 
