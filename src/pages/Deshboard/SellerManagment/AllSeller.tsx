@@ -34,7 +34,7 @@ const AllSeller: React.FC = () => {
 
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-gray-100  w-full font-sans">
+    <div className="bg-white p-6 rounded-2xl border border-gray-100  w-full ">
 
       {/* Top Header & Filters Section */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">

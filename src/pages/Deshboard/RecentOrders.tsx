@@ -60,7 +60,7 @@ const RecentOrders: React.FC = () => {
     };
 
     return (
-        <div className="w-full bg-white rounded-lg  border border-gray-100 p-4 md:p-6 font-sans">
+        <div className="w-full bg-white rounded-lg  border border-gray-100 p-4 md:p-6 ">
             {/* Header Section */}
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>

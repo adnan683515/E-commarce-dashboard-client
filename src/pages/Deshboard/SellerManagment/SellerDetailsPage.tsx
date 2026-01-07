@@ -85,7 +85,7 @@ export default function SellerDetailsPage() {
 
                 <div className='lg:w-1/2'>
 
-                    <div className="bg-white p-4 lg:p-10 rounded-2xl border border-gray-100  w-full  h-full mx-auto font-sans">
+                    <div className="bg-white p-4 lg:p-10 rounded-2xl border border-gray-100  w-full  h-full mx-auto ">
 
                         {/* Header with Back Button */}
                         <div className="flex items-center mb-5 border-b border-gray-50">
