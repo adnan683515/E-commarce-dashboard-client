@@ -106,7 +106,7 @@ export default function AllBuyer() {
                   <div className="flex items-center justify-end gap-2">
 
 
-                    <Link to={'/deshboard/sellerManagement/details/:id'}>
+                    <Link to={'/deshboard/BuyerManagment/:id'}>
                       <button className="flex  px-[10px] text-[12px] items-center  py-[10px] text-white bg-[#2289C9] hover:scale-105 rounded-lg transition-all text-xs font-bold cursor-pointer">
 
                         View Details

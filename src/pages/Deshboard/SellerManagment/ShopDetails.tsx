@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import shope from '../../../assets/mall-america-scenes-cinematic-style.jpg'
 import logoshop from '../../../assets/shop_logo.jpg'
+import CopyEmail from './CopyEmail';
 
 const ShopDetails: React.FC = () => {
   
@@ -117,13 +118,20 @@ const ShopDetails: React.FC = () => {
               <div className="h-12 w-12 bg-white border border-gray-100 rounded-2xl flex items-center justify-center text-blue-500 shrink-0 shadow-sm group-hover:bg-blue-500 group-hover:text-white transition-all">
                 <Mail size={20} />
               </div>
-              <div className="flex-1 overflow-hidden">
+
+              {/* <div className="flex-1 overflow-hidden">
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Email Address</p>
                 <p className="text-sm font-bold text-gray-700 truncate">{shopData.contact.email}</p>
               </div>
+
               <button className="text-gray-300 hover:text-blue-500 transition-colors">
                 <Copy size={18} />
-              </button>
+              </button> */}
+
+
+<CopyEmail  supportEmail={shopData?.contact?.email}></CopyEmail>
+
+
             </div>
 
             {/* Phone */}

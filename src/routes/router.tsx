@@ -16,6 +16,9 @@ import Analytics from "../pages/Deshboard/Analytics/Analytics";
 import Settings from "../pages/Deshboard/Settings/Settings";
 import SellerDetailsPage from "../pages/Deshboard/SellerManagment/SellerDetailsPage";
 import ShopDetails from "../pages/Deshboard/SellerManagment/ShopDetails";
+import BuyerDetails from "../pages/Deshboard/BuyerManagement/BuyerDetails";
+import NotFound from "../components/NotFound/Notfound";
+import OderDetails from "../pages/Deshboard/OderPage/OderDetails";
 
 
 
@@ -43,42 +46,52 @@ export const router = createBrowserRouter([
             }, {
                 path: '/deshboard/sellerManagement',
                 Component: SellerManagment
-            },{
-                path : '/deshboard/sellerManagement/details/:id',
-                Component : SellerDetailsPage
-            } 
-            ,{
-                path : '/deshboard/sellerManagement/shopDetails/:id',
-                Component : ShopDetails
+            }, {
+                path: '/deshboard/sellerManagement/details/:id',
+                Component: SellerDetailsPage
+            }
+            , {
+                path: '/deshboard/sellerManagement/shopDetails/:id',
+                Component: ShopDetails
             },
-            
+
             {
                 path: '/deshboard/BuyerManagment',
                 Component: BuyerManagment
-            },{
-                path : '/deshboard/product',
-                Component : Product
-            },{
-                path : '/deshboard/oder',
-                Component : Oder
-            },{
-                path : '/deshboard/payout',
-                Component : Payout
-            },{
-                path : '/deshboard/catalog',
-                Component : Catalog
-            },{
-                path : '/deshboard/analytics',
-                Component : Analytics
-            },{
-                path : '/deshboard/settings',
-                Component : Settings
+            }, {
+                path: '/deshboard/BuyerManagment/:id',
+                Component: BuyerDetails
+            }
+            ,
+            {
+                path: '/deshboard/product',
+                Component: Product
+            }, {
+                path: '/deshboard/oder',
+                Component: Oder
+            },
+            {
+                path: '/deshboard/oder/:id',
+                Component: OderDetails
+            },
+            {
+                path: '/deshboard/payout',
+                Component: Payout
+            }, {
+                path: '/deshboard/catalog',
+                Component: Catalog
+            }, {
+                path: '/deshboard/analytics',
+                Component: Analytics
+            }, {
+                path: '/deshboard/settings',
+                Component: Settings
             }
         ]
     }
     , {
         path: '/*',
-        Component: Errort
+        Component: NotFound
     }
 
 ])
