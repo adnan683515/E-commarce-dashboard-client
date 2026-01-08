@@ -17,8 +17,10 @@ import Settings from "../pages/Deshboard/Settings/Settings";
 import SellerDetailsPage from "../pages/Deshboard/SellerManagment/SellerDetailsPage";
 import ShopDetails from "../pages/Deshboard/SellerManagment/ShopDetails";
 import BuyerDetails from "../pages/Deshboard/BuyerManagement/BuyerDetails";
-import NotFound from "../components/NotFound/Notfound";
+
 import OderDetails from "../pages/Deshboard/OderPage/OderDetails";
+import PayoutDetails from "../pages/Deshboard/Payout/PayoutDetails";
+import NotFound from "../components/NotFound/NotFound";
 
 
 
@@ -78,6 +80,11 @@ export const router = createBrowserRouter([
                 path: '/deshboard/payout',
                 Component: Payout
             }, {
+                path: '/deshboard/payout/:id',
+                Component: PayoutDetails
+            }
+            ,
+            {
                 path: '/deshboard/catalog',
                 Component: Catalog
             }, {

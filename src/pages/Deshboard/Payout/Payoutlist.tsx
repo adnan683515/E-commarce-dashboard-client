@@ -7,6 +7,7 @@ import {
     X,
     Filter
 } from 'lucide-react';
+import { Link } from 'react-router';
 
 
 // Reusing your provided logic for dynamic backgrounds
@@ -124,11 +125,13 @@ const Payoutlist: React.FC = () => {
                                             )}
                                         </div>
                                     </td>
+                                    {/* /deshboard/payout/:id */}
                                     <td className="px-6 py-4 text-sm sm:text-[16px] font-bold text-slate-700">Bank {req.bank}</td>
                                     <td className="px-6 py-4 text-right">
+                                  <Link to={'/deshboard/payout/:id'}>
                                         <button className="inline-flex items-center gap-2 px-4 py-1.5 text-[16px] cursor-pointer border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
                                             View <ChevronRight className="bg-[#2E90D1] text-white rounded p-0.5" size={16} />
-                                        </button>
+                                        </button></Link>
                                     </td>
                                 </tr>
                             ))}
