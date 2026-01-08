@@ -21,6 +21,11 @@ import BuyerDetails from "../pages/Deshboard/BuyerManagement/BuyerDetails";
 import OderDetails from "../pages/Deshboard/OderPage/OderDetails";
 import PayoutDetails from "../pages/Deshboard/Payout/PayoutDetails";
 import NotFound from "../components/NotFound/NotFound";
+import SettingHomepage from "../pages/Deshboard/Settings/SettingHomepage";
+import Account from "../pages/Deshboard/Settings/Account";
+import EmailSettings from "../pages/Deshboard/Settings/EmailSettings";
+import Payments from "../pages/Deshboard/Settings/Payments";
+import Notification from "../pages/Deshboard/Settings/Notification";
 
 
 
@@ -92,7 +97,26 @@ export const router = createBrowserRouter([
                 Component: Analytics
             }, {
                 path: '/deshboard/settings',
-                Component: Settings
+                Component: Settings,
+                children : [
+                    {
+                        path : '/deshboard/settings',
+                        Component : SettingHomepage
+                    },{
+                        path : '/deshboard/settings/account',
+                        Component : Account
+                    },
+                    {
+                        path :  '/deshboard/settings/email',
+                        Component : EmailSettings
+                    },{
+                        path :  '/deshboard/settings/payments',
+                        Component : Payments
+                    },{
+                        path :   '/deshboard/settings/notification',
+                        Component : Notification
+                    }
+                ]
             }
         ]
     }
