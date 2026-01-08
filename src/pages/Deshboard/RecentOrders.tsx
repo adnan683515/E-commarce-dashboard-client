@@ -17,28 +17,28 @@ const RecentOrders: React.FC = () => {
     const orders: Order[] = [
         {
             id: '#12586',
-            buyer: { name: 'Alice Cooper', avatar: 'https://i.pravatar.cc/150?u=alice' },
+            buyer: { name: 'Alice Cooper', avatar: '/human.png' },
             seller: 'TectGedgeHub',
             status: 'Complete',
             amount: '$200',
         },
         {
             id: '#12586',
-            buyer: { name: 'Alice Cooper', avatar: 'https://i.pravatar.cc/150?u=alice' },
+            buyer: { name: 'Alice Cooper', avatar: '/human.png' },
             seller: 'TectGedgeHub',
             status: 'Shipped',
             amount: '$200',
         },
         {
             id: '#12586',
-            buyer: { name: 'Alice Cooper', avatar: 'https://i.pravatar.cc/150?u=alice' },
+            buyer: { name: 'Alice Cooper', avatar: '/human.png' },
             seller: 'TectGedgeHub',
             status: 'Pending',
             amount: '$200',
         },
         {
             id: '#12586',
-            buyer: { name: 'Alice Cooper', avatar: 'https://i.pravatar.cc/150?u=alice' },
+            buyer: { name: 'Alice Cooper', avatar: '/human.png' },
             seller: 'TectGedgeHub',
             status: 'Complete',
             amount: '$200',
