@@ -65,7 +65,7 @@ const   EmailSettings: React.FC = () => {
           <section className="space-y-8">
             <div className="flex items-center gap-3 text-[#2E90D1]">
               <Mail size={24} strokeWidth={2.5} />
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">SMTP Configuration</h2>
+              <h2 className="text-xl font-extrabold text-[#135B91] tracking-tight">SMTP Configuration</h2>
             </div>
 
             <div className="space-y-6">
@@ -75,7 +75,7 @@ const   EmailSettings: React.FC = () => {
                 { label: "SMTP Username", value: "noreply@example.com" }
               ].map((field) => (
                 <div key={field.label} className="group">
-                  <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wider opacity-80 group-focus-within:text-[#2E90D1]">
+                  <label className="block text-sm font-bold text-slate-900 mb-2  tracking-wider opacity-80 group-focus-within:text-[#2E90D1]">
                     {field.label}
                   </label>
                   <input 
@@ -87,7 +87,7 @@ const   EmailSettings: React.FC = () => {
               ))}
 
               <div className="group">
-                <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wider opacity-80 group-focus-within:text-[#2E90D1]">
+                <label className="block text-sm font-bold text-slate-900 mb-2  tracking-wider opacity-80 group-focus-within:text-[#2E90D1]">
                   SMTP Password
                 </label>
                 <input 
@@ -114,7 +114,7 @@ const   EmailSettings: React.FC = () => {
           <section className="space-y-8">
             <div className="flex items-center gap-3 text-[#2E90D1]">
               <Mail size={24} strokeWidth={2.5} />
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Email Notification</h2>
+              <h2 className="text-xl font-extrabold text-[#135B91] tracking-tight">Email Notification</h2>
             </div>
 
             <div className="space-y-8">
@@ -145,7 +145,7 @@ const   EmailSettings: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b-2 border-slate-50 pb-6">
           <div className="flex items-center gap-3 text-[#2E90D1]">
             <Mail size={24} strokeWidth={2.5} />
-            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Email Templates</h2>
+            <h2 className="text-xl font-extrabold text-[#135B91] tracking-tight">Email Templates</h2>
           </div>
           <button className="bg-[#2E90D1] hover:bg-[#257ab3] text-white px-6 py-3 rounded-2xl font-extrabold text-sm transition-all shadow-lg shadow-blue-50">
             Manage Templates
@@ -154,7 +154,7 @@ const   EmailSettings: React.FC = () => {
 
         <div className="flex flex-wrap gap-4">
           {["Order Confirmation", "Vendor Registration", "Weekly Summary"].map((template) => (
-            <button key={template} className="bg-slate-50 hover:bg-slate-100 border-2 border-slate-100 px-6 py-3 rounded-2xl text-sm font-bold text-slate-700 transition-all">
+            <button key={template} className="bg-[#E3EFFB] hover:bg-slate-100 border-2 border-slate-100 px-6 py-3 rounded-2xl text-sm font-bold text-slate-700 transition-all">
               {template}
             </button>
           ))}

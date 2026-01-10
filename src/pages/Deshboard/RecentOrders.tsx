@@ -73,7 +73,7 @@ const RecentOrders: React.FC = () => {
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-blue-50 text-gray-700 font-semibold uppercase text-xs tracking-wider">
+                        <tr className="bg-blue-50 text-gray-700 font-semibold  text-xs tracking-wider">
                             <th className="px-4 py-3 first:rounded-l-lg">Order ID</th>
                             <th className="px-4 py-3">Buyer</th>
                             <th className="px-4 py-3">Seller</th>

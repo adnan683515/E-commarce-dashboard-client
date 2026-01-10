@@ -48,7 +48,7 @@ export default function Settings() {
                   className={`relative flex items-center gap-3 px-5 py-4 rounded-2xl font-bold transition-all duration-200 group ${
                     isActive
                       ? 'text-[#2E90D1] bg-sky-100'
-                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                      : 'text-slate-900 hover:bg-slate-50 hover:text-slate-800'
                   }`}
                 >
                   {/* Background Highlight for Active Tab */}
@@ -63,7 +63,7 @@ export default function Settings() {
                   <item.icon 
                     size={20} 
                     strokeWidth={isActive ? 2.5 : 2}
-                    className={isActive ? 'text-[#2E90D1]' : 'text-slate-400 group-hover:text-slate-600'}
+                    className={isActive ? 'text-[#2E90D1]' : 'text-slate-800 group-hover:text-slate-600'}
                   />
                   <span className="tracking-tight">{item.name}</span>
                 </Link>
@@ -83,6 +83,7 @@ export default function Settings() {
               transition={{ duration: 0.2 }}
             >
               <Outlet />
+
             </motion.div>
           </AnimatePresence>
         </div>

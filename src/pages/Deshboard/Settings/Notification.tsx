@@ -80,7 +80,7 @@ const   Notification: React.FC = () => {
         <section className="space-y-8">
           <div className="flex items-center gap-3 text-[#2E90D1]">
             <ShoppingCart size={22} strokeWidth={2.5} />
-            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Order Notification</h2>
+            <h2 className="text-xl font-extrabold text-[#135B91] tracking-tight">Order Notification</h2>
           </div>
           <div className="space-y-6">
             <NotificationRow 
@@ -102,7 +102,7 @@ const   Notification: React.FC = () => {
         <section className="space-y-8">
           <div className="flex items-center gap-3 text-[#2E90D1]">
             <Store size={22} strokeWidth={2.5} />
-            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Vendor Notification</h2>
+            <h2 className="text-xl font-extrabold text-[#135B91] tracking-tight">Vendor Notification</h2>
           </div>
           <div className="space-y-6">
             <NotificationRow 
@@ -130,7 +130,7 @@ const   Notification: React.FC = () => {
         <section className="space-y-8">
           <div className="flex items-center gap-3 text-[#2E90D1]">
             <Grid size={22} strokeWidth={2.5} />
-            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">System Notification</h2>
+            <h2 className="text-xl font-extrabold text-[#135B91] tracking-tight">System Notification</h2>
           </div>
           <div className="space-y-6">
             <NotificationRow 

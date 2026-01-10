@@ -62,7 +62,7 @@ const NotFound: React.FC = () => {
 
         {/* Footer Link */}
         <div className="pt-12">
-          <p className="text-sm text-gray-400 font-medium tracking-wide uppercase">
+          <p className="text-sm text-gray-400 font-medium tracking-wide ">
             Techzone Electronics Support
           </p>
         </div>

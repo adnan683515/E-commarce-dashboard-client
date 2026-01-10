@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 
+
 :root {
   --primary-color: #38404E;
   --accent-color: #7D7D7D;
   --btn-color: #2289C9;
   --btn-deep: #135B91;
 }
+
 
 @font-face {
   font-family: 'Lufga';
@@ -15,7 +17,6 @@
   font-style: normal;
   font-display: swap;
 }
-
 
 .MyCustomFont {
   font-weight: 500;

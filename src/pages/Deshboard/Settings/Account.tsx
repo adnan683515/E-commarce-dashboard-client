@@ -16,12 +16,12 @@ const   Account: React.FC = () => {
         <section className="space-y-8">
           <div className="flex items-center gap-3 text-[#2E90D1]">
             <User size={24} strokeWidth={2.5} />
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Profile Information</h2>
+            <h2 className="text-xl font-bold text-[#135B91] tracking-tight">Profile Information</h2>
           </div>
 
           <div className="space-y-6">
             <div className="group">
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
+              <label className="block text-sm font-bold text-slate-900 mb-2  tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
                 Your Name
               </label>
               <input 
@@ -32,7 +32,7 @@ const   Account: React.FC = () => {
             </div>
 
             <div className="group">
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
+              <label className="block text-sm font-bold text-slate-900 mb-2  tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
                 Email Address
               </label>
               <input 
@@ -48,12 +48,12 @@ const   Account: React.FC = () => {
         <section className="space-y-8">
           <div className="flex items-center gap-3 text-[#2E90D1]">
             <Lock size={24} strokeWidth={2.5} />
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Change Password</h2>
+            <h2 className="text-xl font-bold text-[#135B91] tracking-tight">Change Password</h2>
           </div>
 
           <div className="space-y-6">
             <div className="group">
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
+              <label className="block text-sm font-bold text-slate-900 mb-2  tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
                 Current Password
               </label>
               <input 
@@ -64,7 +64,7 @@ const   Account: React.FC = () => {
             </div>
 
             <div className="group">
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
+              <label className="block text-sm font-bold text-slate-900 mb-2  tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
                 New Password
               </label>
               <input 
@@ -75,7 +75,7 @@ const   Account: React.FC = () => {
             </div>
 
             <div className="group">
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
+              <label className="block text-sm font-bold text-slate-900 mb-2  tracking-wider opacity-80 group-focus-within:text-[#2E90D1] transition-colors">
                 Confirm Password
               </label>
               <input 

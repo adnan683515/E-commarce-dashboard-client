@@ -116,7 +116,7 @@ const Product: React.FC = () => {
         {products.map((product, idx) => (
           <div key={idx} className="bg-sky-100  rounded-xl   border-gray-100 overflow-hidden group">
             <div className="relative  h-[30vh] w-full aspect-square bg-[#A5C9E1] flex items-center justify-center ">
-              <span className="absolute top-3 right-3 bg-yellow-400 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase">
+              <span className="absolute top-3 right-3 bg-yellow-400 text-white text-[10px] font-bold px-3 py-1 rounded-full ">
                 Pending
               </span>
               <img src={product.image} alt={product.name} className="w-full  h-full object-contain  mix-blend-multiply  group-hover:scale-110 transition-transform duration-300" />
@@ -132,7 +132,7 @@ const Product: React.FC = () => {
 
               <div className="flex justify-between items-center">
                 <span className="text-lg font-black text-gray-900">{product.price}</span>
-                <span className="text-[12px] font-bold text-gray-800 uppercase tracking-tighter">SKU: {product.sku}</span>
+                <span className="text-[12px] font-bold text-gray-800  tracking-tighter">SKU: {product.sku}</span>
               </div>
 
               <button onClick={() => openModal(product)} className="w-full cursor-pointer py-2 bg-[#2289C9] text-white rounded-lg text-sm font-bold hover:bg-sky-900 transition-colors">
@@ -140,10 +140,10 @@ const Product: React.FC = () => {
               </button>
 
               <div className="grid grid-cols-2 gap-2 pt-1">
-                <button className="py-2 bg-[#128635] text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-colors uppercase">
+                <button className="py-2 bg-[#128635] text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-colors ">
                   Approve
                 </button>
-                <button className="py-2 bg-[#DF2A16] text-white rounded-lg text-xs font-bold hover:bg-red-600 transition-colors uppercase">
+                <button className="py-2 bg-[#DF2A16] text-white rounded-lg text-xs font-bold hover:bg-red-600 transition-colors ">
                   Reject
                 </button>
               </div>
@@ -274,7 +274,7 @@ const Product: React.FC = () => {
                               </div>
                             </div>
                           </div>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase">10 Dec</span>
+                          <span className="text-[10px] font-bold text-gray-400 ">10 Dec</span>
                         </div>
                         <p className="text-xs text-gray-600 leading-normal mb-4">
                           Extremely comfortable for long runs. The cushioning is exactly what I needed.

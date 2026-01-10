@@ -99,7 +99,7 @@ const ShopDetails: React.FC = () => {
         <div className="px-6 py-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
           {shopData.stats.map((stat, index) => (
             <div key={index} className="bg-blue-50/40 border border-blue-100/50 rounded-xl p-4 text-center hover:bg-blue-50 transition-colors">
-              <p className="text-[11px] font-bold text-blue-500/80 mb-1 tracking-widest uppercase">{stat.label}</p>
+              <p className="text-[11px] font-bold text-blue-500/80 mb-1 tracking-widest ">{stat.label}</p>
               <div className="flex justify-center items-center gap-1">
                 <span className="text-xl font-bold text-gray-800">{stat.value}</span>
                 {stat.isRating && <Star size={18} fill="#FACC15" className="text-yellow-400" />}
@@ -110,7 +110,7 @@ const ShopDetails: React.FC = () => {
 
         {/* Contact Information Section */}
         <div className="px-6 py-8 border-t border-gray-100 bg-gray-50/30">
-          <h3 className="font-bold text-gray-900 mb-6 uppercase text-sm tracking-[0.2em]">Contact Information</h3>
+          <h3 className="font-bold text-gray-900 mb-6  text-sm tracking-[0.2em]">Contact Information</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             {/* Email */}
@@ -119,14 +119,7 @@ const ShopDetails: React.FC = () => {
                 <Mail size={20} />
               </div>
 
-              {/* <div className="flex-1 overflow-hidden">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Email Address</p>
-                <p className="text-sm font-bold text-gray-700 truncate">{shopData.contact.email}</p>
-              </div>
 
-              <button className="text-gray-300 hover:text-blue-500 transition-colors">
-                <Copy size={18} />
-              </button> */}
 
 
 <CopyEmail  supportEmail={shopData?.contact?.email}></CopyEmail>
@@ -140,7 +133,7 @@ const ShopDetails: React.FC = () => {
                 <Phone size={20} />
               </div>
               <div className="flex-1">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Phone Number</p>
+                <p className="text-[11px] font-bold text-gray-400  tracking-wider">Phone Number</p>
                 <p className="text-sm font-bold text-gray-700">{shopData.contact.phone}</p>
               </div>
             </div>
@@ -151,7 +144,7 @@ const ShopDetails: React.FC = () => {
                 <Home size={20} />
               </div>
               <div className="flex-1">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Headquarters</p>
+                <p className="text-[11px] font-bold text-gray-400  tracking-wider">Headquarters</p>
                 <p className="text-sm font-bold text-gray-700 leading-tight">
                   {shopData.contact.headquarters}
                 </p>

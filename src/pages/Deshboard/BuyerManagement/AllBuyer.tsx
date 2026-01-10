@@ -95,7 +95,7 @@ export default function AllBuyer() {
                   {buyer.joinDate}
                 </td>
                 <td className="p-4 text-center">
-                  <span className={`px-3 py-1 rounded-full text-[11px] font-bold border uppercase tracking-wider ${buyer.status === 'Approved'
+                  <span className={`px-3 py-1 rounded-full text-[11px] font-bold border  tracking-wider ${buyer.status === 'Approved'
                       ? 'bg-green-50 text-green-600 border-green-100'
                       : 'bg-orange-50 text-orange-600 border-orange-100'
                     }`}>

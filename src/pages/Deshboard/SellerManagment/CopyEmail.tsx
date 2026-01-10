@@ -19,7 +19,7 @@ const CopyEmail = ({ supportEmail }: { supportEmail: string }) => {
     return (
         <div className="flex  justify-between  w-full">
             <div className="flex-1 overflow-hidden">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <p className="text-[11px] font-bold text-gray-400  tracking-wider">
                     Email Address
                 </p>
                 <p className="text-sm font-bold text-gray-700 truncate">
