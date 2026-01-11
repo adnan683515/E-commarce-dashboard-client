@@ -36,8 +36,8 @@ export default function BuyerManagment() {
       <h1 className="sm:text-[12px]">Buyer Management / All </h1>
       <div className="grid  my-4 grid-cols-1 sm:grid-cols-2  lg:grid-cols-4 gap-y-2 sm:gap-x-[24px] ">
         {
-          sellerGrid?.map((item) => {
-            return <div className="bg-white flex flex-col gap-y-2 px-[23px] py-[37px] rounded-lg">
+          sellerGrid?.map((item , i) => {
+            return <div  key={i} className="bg-white flex flex-col gap-y-2 px-[23px] py-[37px] rounded-lg">
               <h1 className="text-[14px] font-semibold"> {item?.title}</h1>
 
               <div className="flex justify-between items-center">

@@ -1,10 +1,8 @@
 import { createBrowserRouter } from "react-router";
 import Login from "../pages/auth/Login";
-import Errort from "../components/Errort";
 import VerifyAccount from "../pages/auth/VerifyAccount";
 import ForgetPassword from "../pages/auth/Forgetpassword";
 import NewPassConfirmPass from "../pages/auth/NewPassConfirmPass";
-import MainLayout from "../Layout/MainLayout";
 import DashboardHomepage from "../pages/Deshboard/DashboardHomepage";
 import SellerManagment from "../pages/Deshboard/SellerManagment/SellerManagment";
 import BuyerManagment from "../pages/Deshboard/BuyerManagement/BuyerManagment";
@@ -26,26 +24,34 @@ import Account from "../pages/Deshboard/Settings/Account";
 import EmailSettings from "../pages/Deshboard/Settings/EmailSettings";
 import Payments from "../pages/Deshboard/Settings/Payments";
 import Notification from "../pages/Deshboard/Settings/Notification";
+import MainLayout from "../Layout/MainLayout";
+import  PrivetRoute from "./PrivetRoute";
+import AuthRoute from "./AuthRoute";
 
 
 
 export const router = createBrowserRouter([
     {
         path: '/',
-        Component: Login
+        element :  <AuthRoute>
+            <Login></Login>
+        </AuthRoute>
     },
     {
         path: '/OTP',
-        Component: VerifyAccount
+        element : <VerifyAccount></VerifyAccount>
     }, {
         path: '/sendOTP',
-        Component: ForgetPassword
+        element : <ForgetPassword></ForgetPassword>
     }, {
         path: "/newPassConPass",
-        Component: NewPassConfirmPass
+        element : <NewPassConfirmPass></NewPassConfirmPass>
     }, {
         path: "/deshboard",
-        Component: MainLayout,
+        element : <PrivetRoute>
+            <MainLayout></MainLayout>
+        </PrivetRoute>,
+
         children: [
             {
                 path: '/deshboard',

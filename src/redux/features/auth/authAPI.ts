@@ -10,6 +10,5 @@ export const LoginUserApi = async (data: LoginPayload): Promise<TUser> => {
         data
     );
     const result = response?.data?.data;
-    console.log("Login API result:", result);
     return result;
 };

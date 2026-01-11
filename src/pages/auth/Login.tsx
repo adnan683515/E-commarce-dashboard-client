@@ -1,30 +1,31 @@
 import { useState } from "react"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader } from "lucide-react"
 import loginImage from "../../assets/loginImage.png"
 import logo from "../../assets/logo.png"
 import googleLogo from '../../assets/googleLogo.png'
 import appleLogo from '../../assets/apple.png'
-import { Link, useNavigate } from "react-router"
-import ActionLoading from "../../components/Loading/ActionLoading"
+import { Link } from "react-router"
 import { useForm } from "react-hook-form"
 import type { LoginPayload } from "../../config/auth/auth"
 import Error from "../../components/shared/Error"
 import { useAppDispatch, useAppSelector } from "../../redux/hook"
 import { loginUser } from "../../redux/features/auth/authSlice"
+import AuthReduxHook from "../../Hook/AuthReduxHook"
+
 
 
 export default function Login() {
     const [showPassword, setShowPassword] = useState(false)
-    const [loginLoading, setLoginLoading] = useState<boolean>(false)
+
 
     // hook from for login
     const { register, handleSubmit, formState: { errors } } = useForm<LoginPayload>()
 
+    const {isLoading} = AuthReduxHook()
+
+  
     // disptach 
     const disptach = useAppDispatch()
-
-
-    const navigate = useNavigate()
 
 
 
@@ -33,11 +34,8 @@ export default function Login() {
     );
 
     const loginFn = async (data: LoginPayload) => {
-        setLoginLoading(true)
-
-
+    
         try {
-
             disptach(
                 loginUser({
                     email: data.email,
@@ -46,16 +44,11 @@ export default function Login() {
                 })
             );
 
-
         }
         catch (error: any) {
             console.log(error)
             console.log(isError, errorMessage)
         }
-        finally {
-            setLoginLoading(false)
-        }
-
     }
 
 
@@ -125,9 +118,9 @@ export default function Login() {
 
 
 
-                            <button type="submit" className="w-full bg-[var(--btn-color)] text-white py-3 flex justify-center items-center rounded-2xl hover:bg-opacity-90 transition text-base font-medium">
+                            <button type="submit" className="w-full bg-[var(--btn-color)] cursor-pointer text-white py-3 flex justify-center items-center rounded-2xl hover:bg-opacity-90 transition text-base font-medium">
                                 {
-                                    loginLoading ? <ActionLoading></ActionLoading> : " Sign In"
+                                    isLoading ? <div className="flex justify-center items-center"><Loader className=" animate-spin"></Loader></div> : " Sign In"
                                 }
                             </button>
 

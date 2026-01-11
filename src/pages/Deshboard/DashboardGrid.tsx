@@ -1,19 +1,25 @@
 import { ChartNoAxesCombined, CircleDashed, Handbag, TrendingUp, Users } from 'lucide-react'
-import React from 'react'
+import AuthReduxHook from '../../Hook/AuthReduxHook'
 
 export default function DashboardGrid() {
 
     const gridArray: string[] = ['Total Sales', 'Total Oders', 'Total Sellers', 'Products Pending']
 
 
+
+
+    const {authUser} = AuthReduxHook()
+    console.log("User from dashboard",authUser)
+
+    
     return (
 
         <div className='grid grid-cols-1  sm:grid-cols-2 md:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4  gap-x-[24px] gap-y-2'>
 
 
             {
-                gridArray?.map((item: string) => {
-                    return <div className={`px-[14px]  flex flex-col  sm:gap-y-[10px] rounded-lg py-[16px] bg-gradient-to-r   ${item == 'Total Sales' ? 'from-[#68AAFF] to-[#288CE0]' : item.toLocaleLowerCase() == 'total oders' ? 'from-[#3AC4A5] to-[#1F9171]' : item == 'Total Sellers' ? 'from-[#FFB872] to-[#E46C3E]' : 'from-[#FF8984] to-[#F94943]'}`}>
+                gridArray?.map((item: string , i)  => {
+                    return <div key={i} className={`px-[14px]  flex flex-col  sm:gap-y-[10px] rounded-lg py-[16px] bg-gradient-to-r   ${item == 'Total Sales' ? 'from-[#68AAFF] to-[#288CE0]' : item.toLocaleLowerCase() == 'total oders' ? 'from-[#3AC4A5] to-[#1F9171]' : item == 'Total Sellers' ? 'from-[#FFB872] to-[#E46C3E]' : 'from-[#FF8984] to-[#F94943]'}`}>
                         <h2 className='sm:text-[14px] text-white'> {item} </h2>
 
                         <h1 className='sm:text-[24px]    tracking-[.1rem] text-white font-semibold'>$23,525</h1>

@@ -2,18 +2,22 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import { useState } from "react";
 import { Menu, X, BarChart2, Settings, LayoutDashboard, ShoppingCart, Wallet, ChartNoAxesCombined, Handbag, Settings2, SlidersHorizontal, LogOut } from "lucide-react";
 import NavItem from "./NavItem";
+import { useAppDispatch } from "../redux/hook";
+import { logout } from "../redux/features/auth/authSlice";
 
 
-const DashboardLayout = () => {
+const MainLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate()
   const location = useLocation()
-
   const pathname = location.pathname
 
 
+  const distpatch = useAppDispatch()
+
+
   const logutFromapp = () => {
-    navigate('/')
+    distpatch(logout())
 
   }
 
@@ -169,4 +173,4 @@ const DashboardLayout = () => {
 
 
 
-export default DashboardLayout;
+export default MainLayout;
