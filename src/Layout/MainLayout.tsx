@@ -9,7 +9,6 @@ import { toast } from "sonner";
 
 const MainLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate()
   const location = useLocation()
   const pathname = location.pathname
 
