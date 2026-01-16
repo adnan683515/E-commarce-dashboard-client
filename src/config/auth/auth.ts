@@ -17,6 +17,7 @@ export type TUser = {
 }
 
 
+
 // type auth
 export type TAuth = {
     user: TUser | null,
@@ -24,6 +25,8 @@ export type TAuth = {
     isError: boolean;
     errorMessage: string;
 }
+
+
 
 // Login request type
 export type LoginPayload = {

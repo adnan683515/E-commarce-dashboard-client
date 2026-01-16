@@ -24,10 +24,8 @@ export default function Login() {
 
     const { isLoading } = AuthReduxHook()
 
-
     // disptach 
     const disptach = useAppDispatch()
-
 
 
     const { isError, errorMessage } = useAppSelector(
@@ -38,14 +36,18 @@ export default function Login() {
 
         try {
 
-            await disptach(
+            const ans = await disptach(
                 loginUser({
                     email: data.email,
                     password: data.password,
                     loginAs: "ADMIN",
                 })
             );
-
+        
+            if(ans.meta.requestStatus == 'rejected'){
+                toast.error('Invalid Creadentials')
+                return
+            }
             toast.success('Login Successfully!')
 
 

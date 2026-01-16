@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import { useState } from "react";
 import { Menu, X, BarChart2, Settings, LayoutDashboard, ShoppingCart, Wallet, ChartNoAxesCombined, Handbag, Settings2, SlidersHorizontal, LogOut, TicketSlash } from "lucide-react";
 import NavItem from "./NavItem";
@@ -14,6 +14,8 @@ const MainLayout = () => {
 
 
   const distpatch = useAppDispatch()
+
+
 
 
   const logutFromapp = () => {
@@ -112,7 +114,7 @@ const MainLayout = () => {
             destination='/deshboard/banner'
             icon={TicketSlash}
             label="Banner Mannagement"
-            active={pathname.startsWith("/deshboard/banner'")}
+            active={pathname.startsWith('/deshboard/banner')}
           />
 
 

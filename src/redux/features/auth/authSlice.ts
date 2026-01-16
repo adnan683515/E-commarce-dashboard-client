@@ -11,15 +11,14 @@ const initialState: TAuth = {
 };
 
 //  Async thunk for login
-export const loginUser = createAsyncThunk<TUser, LoginPayload, { rejectValue: string }> ( "auth/login", async (data, thunkAPI) => {
-        try {
-            console.log(data)
-            const result = await LoginUserApi(data);
-            return result;
-        } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.message || "Login failed");
-        }
+export const loginUser = createAsyncThunk<TUser, LoginPayload, { rejectValue: string }>("auth/login", async (data, thunkAPI) => {
+    try {
+        const result = await LoginUserApi(data);
+        return result;
+    } catch (error: any) {
+        return thunkAPI.rejectWithValue(`${error.response.data.message}` || "Login failed");
     }
+}
 );
 
 // Slice

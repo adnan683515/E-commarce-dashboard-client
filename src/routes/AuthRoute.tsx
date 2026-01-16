@@ -9,13 +9,12 @@ export default function AuthRoute({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (authUser) {
-      navigate("/deshboard"); // navigate safely after render
+      navigate("/deshboard"); 
     }
   }, [authUser, navigate]);
 
-  // Optionally, you can show nothing or a loader while redirecting
   if (authUser) {
-    return null; // don't render children if redirecting
+    return null; 
   }
 
   return <div>{children}</div>;
