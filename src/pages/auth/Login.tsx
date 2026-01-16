@@ -11,6 +11,7 @@ import Error from "../../components/shared/Error"
 import { useAppDispatch, useAppSelector } from "../../redux/hook"
 import { loginUser } from "../../redux/features/auth/authSlice"
 import AuthReduxHook from "../../Hook/AuthReduxHook"
+import { toast } from "sonner"
 
 
 
@@ -21,9 +22,9 @@ export default function Login() {
     // hook from for login
     const { register, handleSubmit, formState: { errors } } = useForm<LoginPayload>()
 
-    const {isLoading} = AuthReduxHook()
+    const { isLoading } = AuthReduxHook()
 
-  
+
     // disptach 
     const disptach = useAppDispatch()
 
@@ -34,15 +35,19 @@ export default function Login() {
     );
 
     const loginFn = async (data: LoginPayload) => {
-    
+
         try {
-            disptach(
+
+            await disptach(
                 loginUser({
                     email: data.email,
                     password: data.password,
                     loginAs: "ADMIN",
                 })
             );
+
+            toast.success('Login Successfully!')
+
 
         }
         catch (error: any) {

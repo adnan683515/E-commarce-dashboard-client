@@ -27,6 +27,7 @@ import Notification from "../pages/Deshboard/Settings/Notification";
 import MainLayout from "../Layout/MainLayout";
 import  PrivetRoute from "./PrivetRoute";
 import AuthRoute from "./AuthRoute";
+import Banner from "../pages/Deshboard/Banner/Banner";
 
 
 
@@ -93,6 +94,10 @@ export const router = createBrowserRouter([
             }, {
                 path: '/deshboard/payout/:id',
                 Component: PayoutDetails
+            }, 
+            {
+                path : '/deshboard/banner',
+                Component : Banner
             }
             ,
             {

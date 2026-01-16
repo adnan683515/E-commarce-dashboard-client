@@ -40,7 +40,7 @@ const StepsChart = () => {
     const xRenderer = am5xy.AxisRendererX.new(root, {
       minGridDistance: 30,
     })
-    
+
     // Grid styling: dashed lines
     xRenderer.grid.template.setAll({
       strokeDasharray: [3, 3],
@@ -106,8 +106,8 @@ const StepsChart = () => {
       am5.Bullet.new(root, {
         sprite: am5.Circle.new(root, {
           radius: 5,
-          fill: am5.color("#ffffff"), 
-          stroke: themeColor,          
+          fill: am5.color("#ffffff"),
+          stroke: themeColor,
           strokeWidth: 2,
         }),
       })
@@ -143,11 +143,21 @@ const StepsChart = () => {
   }, [])
 
   return (
-    <div className="w-full h-full flex items-center justify-center ">
-      <div
-        ref={chartRef}
-        className="w-full h-full bg-white rounded-3xl border border-gray-100  transition-all"
-      />
+    <div className="w-full bg-white border p-3 sm:p-4 border-gray-100 rounded-3xl h-full flex items-center justify-center ">
+
+      <div className="w-full h-full">
+        <div className="flex justify-between">
+          <h1 className="font-semibold text-xl">Sales Analytics</h1>
+          <div className="flex gap-x-2">
+            <button className="text-[12px] px-2 py-1 rounded-lg font-semibold border border-gray-400">Weekly</button>
+            <button className="text-[12px] px-2 py-1 rounded-lg font-semibold bg-black text-white border border-gray-400">Monthly</button>
+          </div>
+        </div>
+        <div
+          ref={chartRef}
+          className="w-full h-full      transition-all"
+        />
+      </div>
     </div>
   )
 }

@@ -1,9 +1,10 @@
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useState } from "react";
-import { Menu, X, BarChart2, Settings, LayoutDashboard, ShoppingCart, Wallet, ChartNoAxesCombined, Handbag, Settings2, SlidersHorizontal, LogOut } from "lucide-react";
+import { Menu, X, BarChart2, Settings, LayoutDashboard, ShoppingCart, Wallet, ChartNoAxesCombined, Handbag, Settings2, SlidersHorizontal, LogOut, TicketSlash } from "lucide-react";
 import NavItem from "./NavItem";
 import { useAppDispatch } from "../redux/hook";
 import { logout } from "../redux/features/auth/authSlice";
+import { toast } from "sonner";
 
 
 const MainLayout = () => {
@@ -17,7 +18,14 @@ const MainLayout = () => {
 
 
   const logutFromapp = () => {
-    distpatch(logout())
+
+    try {
+      distpatch(logout())
+      toast.error('Logout Successfully!')
+    }
+    catch (error: any) {
+      console.log(error)
+    }
 
   }
 
@@ -101,7 +109,20 @@ const MainLayout = () => {
             active={pathname.startsWith("/deshboard/analytics")}
           />
 
+          <NavItem
+            destination='/deshboard/banner'
+            icon={TicketSlash}
+            label="Banner Mannagement"
+            active={pathname.startsWith("/deshboard/banner'")}
+          />
+
+
           <hr className="mt-7 mx-1 border-gray-400" />
+
+
+
+
+
 
           <NavItem
             destination="/deshboard/settings"
