@@ -9,6 +9,7 @@ export default function AuthReduxHook() {
 
     const authUser = user?.user
     const token = user?.accessToken
+
     
     return { authUser, token, isLoading, isError, errorMessage }
 }

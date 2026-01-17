@@ -37,7 +37,6 @@ const authSlice = createSlice({
             state.errorMessage = "";
         },
     },
-
     //async reducers for createAsyncThunk
     extraReducers: (builder) => {
         builder
@@ -47,8 +46,11 @@ const authSlice = createSlice({
                 state.errorMessage = "";
             })
             .addCase(loginUser.fulfilled, (state, action: PayloadAction<TUser>) => {
+
+        
                 state.isLoading = false;
                 state.user = action.payload;
+                
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.isLoading = false;

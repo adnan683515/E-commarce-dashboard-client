@@ -99,7 +99,7 @@ const MainLayout = () => {
           <NavItem
             destination="/deshboard/catalog"
             icon={SlidersHorizontal}
-            label="Catalog"
+            label="Product Catalog"
             active={pathname.startsWith("/deshboard/catalog")}
           />
 

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Plus,
   Search,
@@ -7,47 +7,77 @@ import {
   Edit3,
   Circle,
   Upload,
-  X
+  X,
+  ChevronLeft
 } from 'lucide-react';
+import cetegoryImage from '../../../assets/cetegoryImage.png'
+import { useSelector } from 'react-redux';
+import { type RootState } from '../../../redux/store';
+import { fetchCategories } from "../../../redux/features/Pcetegory/pcet.thunk";
+import { useAppDispatch, useAppSelector } from '../../../redux/hook';
 
-// --- Types ---
-interface SubCategory {
-  id: string;
-  name: string;
-  productCount: number;
-}
+import axios from 'axios';
+import { axiosUrl } from '../../../axios/axiosURL';
+import AuthReduxHook from '../../../Hook/AuthReduxHook';
+
+
 
 interface Category {
   id: string;
   name: string;
-  subCategories: SubCategory[];
+  image: string;
   totalProducts: number;
 }
 
 const Catalog: React.FC = () => {
+
+
   const [expandedIds, setExpandedIds] = useState<string[]>(['1']);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [cetName, setCetName] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const categories: Category[] = [
+  const { token } = AuthReduxHook()
+
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2;
+
+  const categoriesList: Category[] = [
     {
       id: '1',
       name: 'Electronics',
-      totalProducts: 1245,
-      subCategories: [
-        { id: '1-1', name: 'Laptop', productCount: 415 },
-        { id: '1-2', name: 'Smartphone', productCount: 415 },
-        { id: '1-3', name: 'Headphone', productCount: 415 },
-      ]
+      image: cetegoryImage,
+      totalProducts: 1245
     },
-    { id: '2', name: 'Fashion', totalProducts: 1245, subCategories: [] },
-    { id: '3', name: 'Home & Garden', totalProducts: 1245, subCategories: [] },
-    { id: '4', name: 'Sports & Outdoor', totalProducts: 1245, subCategories: [] },
-    { id: '5', name: 'Beauty & Personal Care', totalProducts: 1245, subCategories: [] },
+    { id: '2', image: cetegoryImage, name: 'Fashion', totalProducts: 1245 },
+    { id: '3', image: cetegoryImage, name: 'Home & Garden', totalProducts: 1245 },
+    { id: '4', image: cetegoryImage, name: 'Sports & Outdoor', totalProducts: 1245 },
+    { id: '5', image: cetegoryImage, name: 'Beauty & Personal Care', totalProducts: 1245 },
   ];
+
+
+
+
+  const dispatch = useAppDispatch();
+  const { categories, loading, error } = useAppSelector(state => state.pcet);
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchCategories(token)) // pass token to thunk
+    }
+  }, [token, dispatch])
+  console.log(categories)
+
+
+
+
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const totalPages = Math.ceil(categoriesList.length / itemsPerPage);
 
   const toggleExpand = (id: string) => {
     setExpandedIds(prev =>
@@ -67,6 +97,13 @@ const Catalog: React.FC = () => {
     fileInputRef.current?.click();
   };
 
+  const productCetegory = () => {
+    console.log(cetName, selectedFile)
+
+  }
+
+
+
   const closeModal = () => {
     setIsModalOpen(false);
     // Optional: Reset file on close
@@ -77,8 +114,10 @@ const Catalog: React.FC = () => {
   return (
     <div className="bg-[#F4F9FD]  text-slate-800 relative transition-all duration-100">
       {/* Header */}
+
+
       <div className="mb-6">
-        <h1 className="text-[18px] sm:text-[24px] font-bold text-slate-900 tracking-tight">Category Management</h1>
+        <h1 className="text-[18px] sm:text-[24px] font-bold text-slate-900 tracking-tight">Product Category Management</h1>
         <p className="text-[14px] text-slate-500 mt-1">Manage product taxonomy, hierarchy, and custom attributes fields.</p>
       </div>
 
@@ -86,9 +125,9 @@ const Catalog: React.FC = () => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4">
           <span className="text-[14px] sm:text-[18px] font-bold text-slate-900 whitespace-nowrap">
-            Total Categories: {categories.length}
+            Total Categories: {categoriesList.length}
           </span>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-1 sm:gap-2 bg-[#2E90D1] hover:bg-[#257ab3] text-white px-2 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-[11px] sm:text-[14px] transition-all duration-100 active:scale-95  "
           >
@@ -117,42 +156,36 @@ const Catalog: React.FC = () => {
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-[#C1E0F6] border-b border-slate-200">
-                <th className="px-6 py-4 text-[14px] font-bold text-slate-700">Category</th>
-                <th className="px-6 py-4 text-[14px] font-bold text-slate-700">Sub - Category</th>
+                <th className="px-6 py-4 text-[14px] font-bold text-slate-700">Category Image</th>
+                <th className="px-6 py-4 text-[14px] font-bold text-slate-700">Category Name</th>
                 <th className="px-6 py-4 text-[14px] font-bold text-slate-700 text-center">Products</th>
                 <th className="px-6 py-4 text-[14px] font-bold text-slate-700 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {categories.map((cat) => {
-                const isExpanded = expandedIds.includes(cat.id);
+              {categoriesList.map((cat) => {
                 return (
                   <React.Fragment key={cat.id}>
                     <tr className="bg-[#E3EFFB]/50 hover:bg-[#E3EFFB] transition-colors duration-100">
+                      <td className='px-6 py-4'>
+                        <img className='w-14  rounded-full  h-14 border-2 border-sky-500' src={cat.image} alt="" />
+                      </td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => toggleExpand(cat.id)}
                           className="flex items-center gap-2 group outline-none cursor-pointer"
                         >
-                          <div className={`text-slate-400 group-hover:text-slate-600 transition-transform duration-300 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}>
-                            <ChevronDown size={20} />
-                          </div>
+
                           <span className="font-bold text-slate-900 text-[15px]">{cat.name}</span>
                         </button>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="text-[14px] font-bold text-slate-800">
-                          {cat.subCategories.length > 0 ? `${cat.subCategories.length} Subcategories` : '—'}
-                        </span>
-                      </td>
+
                       <td className="px-6 py-4 text-center font-bold text-slate-800 text-[14px]">
                         {cat.totalProducts.toLocaleString()}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-end gap-3">
-                          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1.5 bg-[#2E90D1] text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:bg-[#257ab3] transition-all duration-100">
-                            <Plus size={14} /> Add Sub-Category
-                          </button>
+
                           <button className="flex items-center gap-1.5 bg-[#2E90D1] text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:bg-[#257ab3] transition-all duration-100">
                             <Edit3 size={14} /> Edit
                           </button>
@@ -160,33 +193,47 @@ const Catalog: React.FC = () => {
                       </td>
                     </tr>
 
-                    {cat.subCategories.map((sub) => (
-                      <tr
-                        key={sub.id}
-                        className={`bg-white border-b border-slate-50 last:border-b-0 transition-all duration-300 ease-in-out ${isExpanded ? 'table-row opacity-100' : 'hidden opacity-0'}`}
-                      >
-                        <td className="px-6 py-3 pl-16">
-                          <div className="flex items-center gap-3">
-                            <Circle size={8} className="fill-[#2E90D1] text-[#2E90D1]" />
-                            <span className="font-bold text-slate-800 text-[14px]">{sub.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-3"></td>
-                        <td className="px-6 py-3 text-center font-bold text-slate-800 text-[14px]">
-                          {sub.productCount}
-                        </td>
-                        <td className="px-6 py-3 text-right">
-                          <button className="inline-flex items-center gap-1.5 bg-[#2E90D1] text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:bg-[#257ab3] transition-all duration-100">
-                            <Edit3 size={14} /> Edit
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+
                   </React.Fragment>
                 );
               })}
             </tbody>
           </table>
+        </div>
+      </div>
+      <div className="flex items-center justify-between px-2 py-4">
+        <p className="text-sm text-slate-600 font-medium">
+          Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, categoriesList.length)} of {categoriesList.length} entries
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => prev - 1)}
+            className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${currentPage === i + 1
+                ? 'bg-sky-500 text-white shadow-md shadow-sky-200'
+                : 'text-slate-600 hover:bg-sky-50'
+                }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(prev => prev + 1)}
+            className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
 
@@ -215,29 +262,21 @@ const Catalog: React.FC = () => {
             <div>
               <label className="block text-[14px] font-bold text-slate-900 mb-1">Category Name</label>
               <p className="text-[12px] text-slate-400 mb-2">Name your category</p>
-              <input type="text" placeholder="Enter Category Name" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#D2E9F6]" />
+              <input onChange={(e) => setCetName(e.target.value)} type="text" placeholder="Enter Category Name" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#D2E9F6]" />
             </div>
 
-            <div>
-              <label className="block text-[14px] font-bold text-slate-900 mb-1">Parent Category</label>
-              <p className="text-[12px] text-slate-400 mb-2">Select a parent category if applicable</p>
-              <select className="w-full border border-slate-200 rounded-xl px-4 py-3 text-[14px] appearance-none bg-no-repeat bg-[right_1rem_center] bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%20stroke%3D%22%2394a3b8%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22m19%209-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] cursor-pointer">
-                <option>None (Top Level)</option>
-                <option>Electronics</option>
-                <option>Fashion</option>
-              </select>
-            </div>
+
 
             {/* Functional Upload Area */}
-            <div 
+            <div
               onClick={onUploadClick}
               className="border-2 border-dashed border-[#D2E9F6] bg-[#F4F9FD] rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-[#E3F2FD] transition-colors group overflow-hidden"
             >
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleFileChange} 
-                className="hidden" 
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
                 accept="image/*"
               />
 
@@ -262,7 +301,7 @@ const Catalog: React.FC = () => {
               <button onClick={closeModal} className="flex-1 border border-slate-200 text-slate-600 py-3 rounded-xl font-bold text-[14px] hover:bg-slate-50 transition-colors cursor-pointer">
                 Cancel
               </button>
-              <button className="flex-1 bg-[#2E90D1] text-white py-3 rounded-xl font-bold text-[14px] hover:bg-[#257ab3] shadow-md shadow-blue-100 transition-all active:scale-95">
+              <button onClick={productCetegory} className="flex-1 bg-[#2E90D1] text-white py-3 rounded-xl font-bold text-[14px] hover:bg-[#257ab3] shadow-md shadow-blue-100 transition-all active:scale-95">
                 Create Category
               </button>
             </div>
