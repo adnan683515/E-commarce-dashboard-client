@@ -1,13 +1,18 @@
 export interface PcetItem {
   id: string;
   name: string;
-  image : string;
+  image: string;
   category: string;
 }
 
 
 export interface Category {
-  id: string;
+  createdAt: string;
+  imagePublicId: string;
+  imageUrl: string;
   name: string;
-  image : string;
+  type: string;
+  updatedAt: string;
+  _id: string;
+  __v: string
 }

@@ -1,18 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { Category } from "./pcet.types";
-import { fetchCategories } from "./pcet.thunk";
+import { addNewCategoryThunk, fetchCategories, updateCategoryThunk } from "./pcet.thunk";
 
 
 
 
+// product cetegory type
 interface PcetState {
     categories: Category[];
-    //   pcet: PcetItem[];
     selectedCategory: string | null;
     loading: boolean;
     error: string | null;
 }
 
+// initialState
 const initialState: PcetState = {
     categories: [],
     selectedCategory: null,
@@ -21,6 +22,7 @@ const initialState: PcetState = {
 }
 
 
+// product ceteogry slice
 const pcetSlice = createSlice({
     name: "pcet",
     initialState,
@@ -33,6 +35,8 @@ const pcetSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+
+            // fetch categories
             .addCase(fetchCategories.pending, (state) => {
                 state.loading = true;
             })
@@ -43,8 +47,39 @@ const pcetSlice = createSlice({
             .addCase(fetchCategories.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string || "Something went wrong";
-            });
-}
+            })
+
+
+            // add category
+            .addCase(addNewCategoryThunk.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(addNewCategoryThunk.fulfilled, (state, action) => {
+                state.loading = false;
+                state.categories = [...state.categories, action.payload];
+            })
+            .addCase(addNewCategoryThunk.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string || "Failed to add category";
+            })
+
+
+
+            // edit category
+            .addCase(updateCategoryThunk.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(updateCategoryThunk.fulfilled, (state, action) => {
+                state.loading = false;
+                state.categories = [...state.categories, action.payload]
+            })
+            .addCase(updateCategoryThunk.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string || "Failed to update category";
+            })
+
+
+    }
 })
 
 export const { setCategory } = pcetSlice.actions;

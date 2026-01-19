@@ -1,17 +1,51 @@
-import React, { useState, useRef, type ChangeEvent } from 'react';
+import React, { useState, useRef, type ChangeEvent, useEffect } from 'react';
 import { Upload, X, Smartphone, Image as ImageIcon, CheckCircle } from 'lucide-react';
+import { useAppDispatch } from '../../../redux/hook';
+import AuthReduxHook from '../../../Hook/AuthReduxHook';
+import { AddNewBannerThunk, getBannerThunk } from '../../../redux/features/Banner/banner.thunk';
 
 interface Banner {
   id: string;
   url: string;
   name: string;
+  createdAt?: string;
+  imageUrl?: string | undefined;
+  updatedAt?: string;
+  isActive?: boolean;
+  __v?: string;
+  _id?: string;
+
 }
 
+
+
 const Banner: React.FC = () => {
+
+
   const [banners, setBanners] = useState<Banner[]>([]);
   const [tempPreview, setTempPreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isOn, setIsOn] = useState(false);
+  const { token } = AuthReduxHook()
+
+
+  const distpatch = useAppDispatch()
+
+  useEffect(() => {
+    const getBannerData = async () => {
+      if (token) {
+        const res = await distpatch(getBannerThunk({ token }));
+        setBanners(res?.payload?.data)
+      }
+
+    }
+    getBannerData()
+
+  }, [token, distpatch])
+
+
+
 
   // 1. Handle Instant Preview when selecting image
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +58,7 @@ const Banner: React.FC = () => {
   };
 
   // 2. Mock upload function to add to the bottom gallery
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (tempPreview && selectedFile) {
       const newBanner: Banner = {
         id: Math.random().toString(36).substr(2, 9),
@@ -32,6 +66,14 @@ const Banner: React.FC = () => {
         name: selectedFile.name,
       };
       setBanners([newBanner, ...banners]);
+
+      if (selectedFile && token) {
+        console.log(token)
+        const result = await distpatch(AddNewBannerThunk({ token, image: selectedFile }))
+        console.log(result)
+      }
+
+      console.log(selectedFile)
       // Reset upload state
       setTempPreview(null);
       setSelectedFile(null);
@@ -56,17 +98,17 @@ const Banner: React.FC = () => {
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">Upload New Banner</h3>
-              
-              <div 
+
+              <div
                 onClick={() => fileInputRef.current?.click()}
                 className="border-2 border-dashed border-gray-300 rounded-xl p-10 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-400 transition-all"
               >
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileChange} 
-                  className="hidden" 
-                  accept="image/*" 
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept="image/*"
                 />
                 <div className="bg-blue-100 p-3 rounded-full mb-4">
                   <Upload className="text-blue-600 w-6 h-6" />
@@ -76,7 +118,7 @@ const Banner: React.FC = () => {
               </div>
 
               {tempPreview && (
-                <button 
+                <button
                   onClick={handleUpload}
                   className="w-full mt-4 bg-[#2289C9] text-white py-3 rounded-xl font-semibold hover:bg-[#2289C9] transition-colors flex items-center justify-center gap-2"
                 >
@@ -93,12 +135,12 @@ const Banner: React.FC = () => {
                 <Smartphone className="w-5 h-5" />
                 <span>Live App Preview</span>
               </div>
-              
+
               {/* Phone Frame */}
               <div className="relative w-[280px] h-[580px] bg-gray-900 rounded-[3rem] border-[8px] border-gray-800 shadow-2xl overflow-hidden">
                 {/* Notch */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-800 rounded-b-2xl z-20"></div>
-                
+
                 {/* Screen Content */}
                 <div className="w-full h-full  bg-gray-100 relative">
                   {tempPreview ? (
@@ -115,6 +157,9 @@ const Banner: React.FC = () => {
           </div>
         </div>
 
+
+
+
         {/* Bottom Section: Gallery */}
         <section className="border-t border-gray-200 pt-8">
           <h3 className="text-xl font-bold text-gray-800 mb-6">Published Banners</h3>
@@ -125,19 +170,19 @@ const Banner: React.FC = () => {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {banners.map((banner) => (
-                <div key={banner.id} className="group relative aspect-[9/16] rounded-xl overflow-hidden shadow-md border border-gray-200 bg-white">
-                  <img src={banner.url} alt={banner.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                  
+                <div key={banner._id} className="group relative aspect-[9/16] rounded-xl overflow-hidden shadow-md border border-gray-200 bg-white">
+                  <img src={banner.imageUrl} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+
                   {/* Overlay & Cross Button */}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
+                    <button
                       onClick={() => removeBanner(banner.id)}
                       className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 shadow-lg transition-transform hover:scale-110"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                  
+
                   {/* Badge */}
                   <div className="absolute bottom-2 left-2 right-2 bg-white/90 backdrop-blur-sm p-2 rounded text-[10px] truncate font-medium">
                     {banner.name}
