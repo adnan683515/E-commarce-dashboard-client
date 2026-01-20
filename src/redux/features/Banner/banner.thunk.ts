@@ -1,7 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { bannerGetApi } from "./bannerApi";
 import axios from "axios";
-import type { IAddBanner, IBanner } from "./Banner.type";
+import type { IAddBanner, IBanner } from "./banner.type";
+import { createAxiosSecure } from "../../../axios/axiosSequre";
 
 
 // get banner
@@ -24,8 +25,6 @@ export const getBannerThunk = createAsyncThunk(
 
 
 // add banner 
-
-
 export const AddNewBannerThunk = createAsyncThunk("banner/AddNewBannerThunk", async ({ token, image }: IAddBanner, { rejectWithValue }) => {
     const formData = new FormData()
     try {
@@ -49,4 +48,24 @@ export const AddNewBannerThunk = createAsyncThunk("banner/AddNewBannerThunk", as
         return rejectWithValue(err.response?.data?.message || "Failed Add Banner!")
     }
 
+})
+
+
+
+// delete banner
+interface IDeleteBanner {
+    token: string | undefined;
+    id: string | undefined;
+}
+export const DeleteBannerThunk = createAsyncThunk("banner/DeleteBanner", async ({ token, id }: IDeleteBanner, { rejectWithValue }) => {
+    const axiosSequre = createAxiosSecure(token)
+    try {
+
+        if (token && id) {
+         const res =    await axiosSequre.delete(`admin/banners/${id}`)
+            return res.data
+        }
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || "Failed to fetch banners");
+    }
 })

@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, Store, Star, X } from 'lucide-react';
 import sneakers from '../../../assets/sneakers.jpg'
+import { useAppDispatch, useAppSelector } from '../../../redux/hook';
+import { getProductThunk } from '../../../redux/features/Products/product.thunk';
+import AuthReduxHook from '../../../Hook/AuthReduxHook';
+import type { TProduct } from '../../../redux/features/Products/productSlice';
+import { fetchCategories } from '../../../redux/features/Pcetegory/pcet.thunk';
+
 
 interface Product {
   id: string;
@@ -15,11 +21,17 @@ interface Product {
 const Product: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<TProduct | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const { token } = AuthReduxHook()
+  const dispatch = useAppDispatch()
+  let [page, setPage] = useState<number>(1)
+  const [allProducts, setAllProducts] = useState<TProduct[] | null>([]);
+  const [status, setStatus] = useState<"PENDING" | "APPROVED" | undefined>(undefined);
+  const [catId,setCatId] = useState<string | undefined>(undefined)
 
   // Handle smooth transition timing
-  const openModal = (product: Product) => {
+  const openModal = (product: TProduct) => {
     setSelectedProduct(product);
     setTimeout(() => setIsModalVisible(true), 10);
   };
@@ -29,18 +41,35 @@ const Product: React.FC = () => {
     setTimeout(() => setSelectedProduct(null), 1000); // Wait for transition to finish
   };
 
+  // get products 
+  useEffect(() => {
+    const productFetch = async () => {
+      if (token) {
+        const res = await dispatch(getProductThunk({ token, page, status , category : catId}))
+        setAllProducts(res.payload)
+      }
+    }
+    productFetch()
+
+  }, [status, page, catId])
 
 
-  const products: Product[] = Array(8).fill({
-    id: '1',
-    name: 'Premium Sneakers',
-    seller: 'SneakersHub',
-    price: '$1500',
-    sku: 'sk-1234',
-    image: sneakers,
-    status: 'Pending'
-  });
 
+    const { categories } = useAppSelector(state => state.pcet);
+ 
+
+    useEffect(() => {
+      if (token) {
+        dispatch(fetchCategories({ token }));
+  
+      }
+    }, [token, dispatch])
+    console.log(catId, allProducts)
+
+
+
+  const isPrevDisabled = page <= 1;
+  const isNextDisabled = !allProducts?.length || allProducts.length < 8;
   return (
     <div className=" md:p-8  min-h-screen relative">
       {/* Header & Description */}
@@ -57,10 +86,14 @@ const Product: React.FC = () => {
 
         <div className="relative">
           <select
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              setStatus(e.target.value as "PENDING" | "APPROVED" | undefined)
+            }
             className="appearance-none border border-gray-200 rounded-lg px-4 py-2 pr-10 text-sm font-medium cursor-pointer bg-white text-gray-700 outline-none transition-all hover:border-sky-400 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 font-semibold"
           >
-            <option value="pending">Status : Pending</option>
-            <option value="approved">Status : Approved</option>
+            <option value="">Select Your Choice</option>
+            <option value="PENDING">Status : Pending</option>
+            <option value="APPROVED">Status : Approved</option>
           </select>
 
 
@@ -73,11 +106,15 @@ const Product: React.FC = () => {
 
         <div className="relative">
           <select
+          onChange={(e)=>setCatId(e.target.value)}
             className="appearance-none border border-gray-200 rounded-lg px-4 py-2 pr-10 text-sm font-medium cursor-pointer bg-white text-gray-700 outline-none transition-all hover:border-sky-400 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 font-semibold"
           >
-            <option value="pending">Status : Fashion</option>
-            <option value="approved">Status : Tech</option>
-            <option value="approved">Status : Electronics</option>
+
+            {
+              categories?.map((item)=>{
+                return    <option value={item?._id}>Status : {item?.name}</option>
+              })
+            }
           </select>
 
 
@@ -105,48 +142,79 @@ const Product: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-[14px] sm:text-xl font-bold text-gray-800">Pending Products (235)</h2>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500 mr-2">Showing 8 of 235</span>
-          <button className="border px-3 hover:scale-95 cursor-pointer  py-1.5 rounded-lg text-sm text-[#2289C9] font-bold hover:bg-white transition-all">Previous</button>
-          <button className="bg-[#2289C9]  transition-all duration-100 cursor-pointer text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:scale-95 ">Next</button>
+          <span className="text-sm text-gray-500 mr-2">Showing   {allProducts?.length} products </span>
+          <button
+            disabled={isPrevDisabled}
+            onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+            className={`border px-3 py-1.5 rounded-lg text-sm font-bold transition-all
+      ${isPrevDisabled
+                ? "cursor-not-allowed opacity-50 text-gray-400"
+                : "cursor-pointer text-[#2289C9] hover:bg-white hover:scale-95"}
+    `}
+          >
+            Previous
+          </button>
+
+          {/* Next */}
+          <button
+            disabled={isNextDisabled}
+            onClick={() => setPage(prev => prev + 1)}
+            className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all
+      ${isNextDisabled
+                ? "cursor-not-allowed opacity-50 bg-gray-400"
+                : "cursor-pointer bg-[#2289C9] text-white hover:scale-95"}
+    `}
+          >
+            Next
+          </button>
         </div>
       </div>
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {products.map((product, idx) => (
+        {allProducts?.map((product, idx) => (
           <div key={idx} className="bg-sky-100  rounded-xl   border-gray-100 overflow-hidden group">
             <div className="relative  h-[30vh] w-full aspect-square bg-[#A5C9E1] flex items-center justify-center ">
-              <span className="absolute top-3 right-3 bg-yellow-400 text-white text-[10px] font-bold px-3 py-1 rounded-full ">
-                Pending
+              <span className={`absolute top-3 right-3  ${product?.approvalStatus == "PENDING" ? "bg-yellow-400" : "bg-green-600"}  text-white text-[10px] font-bold px-3 py-1 rounded-full `}>
+                {product?.approvalStatus == "PENDING" ? "Pending" : "Approved"}
               </span>
-              <img src={product.image} alt={product.name} className="w-full  h-full object-contain  mix-blend-multiply  group-hover:scale-110 transition-transform duration-300" />
+
+              {
+                product.media?.gallery?.length ? <img src={product.media.gallery[0]} alt={product.name} className="w-full  h-full object-contain  mix-blend-multiply  group-hover:scale-110 transition-transform duration-300" /> : <img src={sneakers} alt={product.name} className="w-full  h-full object-contain  mix-blend-multiply  group-hover:scale-110 transition-transform duration-300" />
+              }
             </div>
 
             <div className="p-4 space-y-2">
               <div>
                 <h3 className="font-bold text-gray-900">{product.name}</h3>
                 <div className="flex items-center gap-1 font-semibold text-gray-700 text-[14px] mt-1">
-                  <Store size={18} /> {product.seller}
+                  <Store size={18} /> {product?.category?.name}
                 </div>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-lg font-black text-gray-900">{product.price}</span>
-                <span className="text-[12px] font-bold text-gray-800  tracking-tighter">SKU: {product.sku}</span>
+                <span className="text-lg font-black text-gray-900">${product?.pricing?.basePrice}</span>
+                <span className={`text-[12px] font-bold text-gray-800 px-2 py-1 rounded-l-full rounded-r-full  tracking-tighter  ${product.isActive ? "bg-green-200" : "bg-red-200"}  `}> {product.isActive ? "Active" : "Block"}</span>
               </div>
 
               <button onClick={() => openModal(product)} className="w-full cursor-pointer py-2 bg-[#2289C9] text-white rounded-lg text-sm font-bold hover:bg-sky-900 transition-colors">
                 View Details
               </button>
 
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <button className="py-2 bg-[#128635] text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-colors ">
-                  Approve
-                </button>
-                <button className="py-2 bg-[#DF2A16] text-white rounded-lg text-xs font-bold hover:bg-red-600 transition-colors ">
-                  Reject
-                </button>
-              </div>
+              {
+                product?.approvalStatus == "PENDING" && <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button className="py-2 bg-[#128635] text-white rounded-lg text-xs font-bold hover:bg-green-700 transition-colors ">
+                    Approve
+                  </button>
+
+
+                  <button className={`py-2 bg-[#DF2A16] text-white rounded-lg text-xs font-bold hover:bg-red-600 transition-colors  `}>
+                    Reject
+                  </button>
+
+
+                </div>
+              }
             </div>
           </div>
         ))}
@@ -186,16 +254,24 @@ const Product: React.FC = () => {
                 {/* Left Side - Image & Product Intro (Mobile: First) */}
                 <div className="lg:col-span-5 bg-[#A5C9E1] p-6 sm:p-8 flex flex-col justify-center min-h-[350px] sm:min-h-0">
                   <div className="flex-1 flex items-center justify-center py-4">
-                    <img
-                      src={selectedProduct.image}
-                      alt="Sneaker"
-                      className="w-full max-w-[280px] sm:max-w-full object-contain mix-blend-multiply drop-shadow-2xl"
-                    />
+                    {
+                      selectedProduct.media?.gallery.length ? <img
+                        src={selectedProduct.media.gallery[0]}
+                        alt="Sneaker"
+                        className="w-full max-w-[280px] sm:max-w-full object-contain mix-blend-multiply drop-shadow-2xl"
+                      /> : <img
+                        src={sneakers}
+                        alt="Sneaker"
+                        className="w-full max-w-[280px] sm:max-w-full object-contain mix-blend-multiply drop-shadow-2xl"
+                      />
+                    }
+
+
                   </div>
                   <div className="mt-4">
                     <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedProduct.name}</h2>
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-xl sm:text-2xl font-black text-gray-900">{selectedProduct.price}</span>
+                      <span className="text-xl sm:text-2xl font-black text-gray-900">${selectedProduct?.pricing?.basePrice}</span>
                       <div className="flex items-center gap-1">
                         <span className="text-xs sm:text-sm font-bold text-gray-700">(250 Reviews)</span>
                         <Star size={16} className="fill-yellow-400 text-yellow-400" />
@@ -205,11 +281,40 @@ const Product: React.FC = () => {
 
                     {/* Sizes */}
                     <div className="mt-4 flex gap-2 flex-wrap no-scrollbar pb-2">
-                      {['08', '16', '18', '20', '22', '24', '26'].map(size => (
-                        <span key={size} className="flex-shrink-0 px-4 py-2 bg-white/50 rounded-lg text-sm font-bold border border-white/30">
-                          {size}
-                        </span>
-                      ))}
+
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {selectedProduct?.variants?.map((variant, index) => (
+                          <div
+                            key={index}
+                            className="border rounded-lg p-3 bg-white/50 border-white/30 shadow-sm flex justify-between items-center"
+                          >
+                            {/* LEFT: Dynamic attributes */}
+                            <div className="text-sm space-y-1">
+                              {variant.attributes &&
+                                Object.entries(variant.attributes).map(([key, value]) => (
+                                  <p key={key} className="capitalize text-xs text-gray-800 font-medium">
+                                    {key}: <span className="text-gray-600">{String(value)}</span>
+                                  </p>
+                                ))}
+
+                              <p className="text-xs text-gray-500">SKU: {variant.sku}</p>
+                            </div>
+
+                            {/* RIGHT: Price & Stock */}
+                            <div className="text-right text-sm">
+                              <p className="font-bold text-blue-600">৳{variant.price}</p>
+                              <p
+                                className={`text-xs ${variant.stock <= 10 ? "text-red-500" : "text-green-600"
+                                  }`}
+                              >
+                                Stock: {variant.stock}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
                     </div>
 
                     {/* Shop Info Card */}
@@ -232,25 +337,42 @@ const Product: React.FC = () => {
                 <div className="lg:col-span-3 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-gray-100 bg-white">
                   <h4 className="font-bold text-gray-900 text-lg mb-3">Description</h4>
                   <p className="text-sm text-gray-600 leading-relaxed mb-8">
-                    The Marathon Sports Shoe is engineered for performance and comfort. Crafted with premium breathable fabric and a shock-resistant sole, it delivers stability and flexibility.
+                    {
+                      selectedProduct?.description
+                    }
                   </p>
 
                   <h4 className="font-bold text-gray-900 text-lg mb-4">Specifications</h4>
                   <div className="space-y-4">
                     {[
-                      ['Upper Material', 'Breathable Mesh'],
-                      ['Sole Material', 'Rubber'],
-                      ['Closure Type', 'Lace-up'],
-                      ['Weight', 'Lightweight'],
-                      ['Fit Type', 'Regular'],
-                      ['Gender', 'Unisex'],
-                      ['Occasion', 'Sports & Casual']
+                      ['stock', selectedProduct?.inventory?.stock],
+                      ['Shope Name', selectedProduct?.shop?.shopName],
                     ].map(([label, value]) => (
                       <div key={label} className="flex justify-between text-sm">
                         <span className="text-gray-500 font-medium">{label}</span>
-                        <span className="font-bold text-gray-800">{value}</span>
+                        <span className={`font-bold text-gray-800 text-xs`}>{value}</span>
                       </div>
                     ))}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500 font-medium">Status</span>
+                      <span className={`font-bold text-gray-800 text-xs ${selectedProduct?.approvalStatus == "PENDING" ? 'bg-yellow-400 rounded-l-full rounded-r-full px-3 py-1' : 'bg-green-500 px-3 py-1 rounded-l-full rounded-r-full'} `}>{selectedProduct?.approvalStatus}</span>
+                    </div>
+
+                    <div>
+                      <h1 className='text-black font-bold'>Category :  </h1>
+                      <div>
+
+                        <div className='flex justify-between '>
+                          <h1> {selectedProduct?.category?.name} </h1>
+                          <img className='w-28 h-28' src={selectedProduct?.category?.imageUrl} alt="" />
+                        </div>
+
+                      </div>
+                    </div>
+
+
+
+
                   </div>
                 </div>
 

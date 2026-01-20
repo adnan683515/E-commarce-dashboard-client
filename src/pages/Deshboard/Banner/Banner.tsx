@@ -2,10 +2,10 @@ import React, { useState, useRef, type ChangeEvent, useEffect } from 'react';
 import { Upload, X, Smartphone, Image as ImageIcon, CheckCircle } from 'lucide-react';
 import { useAppDispatch } from '../../../redux/hook';
 import AuthReduxHook from '../../../Hook/AuthReduxHook';
-import { AddNewBannerThunk, getBannerThunk } from '../../../redux/features/Banner/banner.thunk';
+import { AddNewBannerThunk, DeleteBannerThunk, getBannerThunk } from '../../../redux/features/Banner/banner.thunk';
+import { toast } from 'sonner';
 
 interface Banner {
-  id: string;
   url: string;
   name: string;
   createdAt?: string;
@@ -13,7 +13,7 @@ interface Banner {
   updatedAt?: string;
   isActive?: boolean;
   __v?: string;
-  _id?: string;
+  _id: string;
 
 }
 
@@ -61,19 +61,23 @@ const Banner: React.FC = () => {
   const handleUpload = async () => {
     if (tempPreview && selectedFile) {
       const newBanner: Banner = {
-        id: Math.random().toString(36).substr(2, 9),
+        _id: Math.random().toString(36).substr(2, 9),
         url: tempPreview,
         name: selectedFile.name,
       };
       setBanners([newBanner, ...banners]);
 
       if (selectedFile && token) {
-        console.log(token)
         const result = await distpatch(AddNewBannerThunk({ token, image: selectedFile }))
-        console.log(result)
+        if (result.meta.requestStatus == 'fulfilled') {
+          const res = await distpatch(getBannerThunk({ token }));
+          setBanners(res?.payload?.data)
+          return toast.success('Banner Added Successfully!')
+        }
+        else if (result.meta.requestStatus == 'rejected') {
+          return toast.error("Banner Doesn't Added!")
+        }
       }
-
-      console.log(selectedFile)
       // Reset upload state
       setTempPreview(null);
       setSelectedFile(null);
@@ -81,8 +85,23 @@ const Banner: React.FC = () => {
   };
 
   // 3. Remove banner from gallery
-  const removeBanner = (id: string) => {
-    setBanners(banners.filter((b) => b.id !== id));
+  const removeBanner = async (id: string) => {
+
+    try {
+      const deleteRes = await distpatch(DeleteBannerThunk({ token, id }))
+      console.log(deleteRes)
+      if (deleteRes.meta.requestStatus == 'fulfilled') {
+        const res = await distpatch(getBannerThunk({ token }));
+        setBanners(res?.payload?.data)
+        return toast.success("Bannar Deleted!")
+      } else if (deleteRes.meta.requestStatus == 'rejected') {
+        return toast.error("Banner Doesn't Delete!")
+      }
+    }
+    catch (error: any) {
+      console.log(error)
+    }
+
   };
 
   return (
@@ -176,7 +195,7 @@ const Banner: React.FC = () => {
                   {/* Overlay & Cross Button */}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={() => removeBanner(banner.id)}
+                      onClick={() => removeBanner(banner._id)}
                       className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 shadow-lg transition-transform hover:scale-110"
                     >
                       <X className="w-4 h-4" />

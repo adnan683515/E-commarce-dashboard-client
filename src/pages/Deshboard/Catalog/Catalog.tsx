@@ -49,7 +49,7 @@ const Catalog: React.FC = () => {
       dispatch(fetchCategories({ token, page: currentPage }));
 
     }
-  }, [token, dispatch, currentPage])
+  }, [token, dispatch, currentPage ])
 
 
   const startIndex = (currentPage - 1) * itemsPerPage;

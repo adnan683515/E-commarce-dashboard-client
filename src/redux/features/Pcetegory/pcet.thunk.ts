@@ -1,6 +1,6 @@
 // pcet.thunk.ts
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { addNewCategories, getCategoriesApi } from "./pcet.api";
+import {  getCategoriesApi } from "./pcet.api";
 import axios from "axios";
 
 

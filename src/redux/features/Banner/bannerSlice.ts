@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { AddNewBannerThunk } from "./banner.thunk";
+import { AddNewBannerThunk, DeleteBannerThunk } from "./banner.thunk";
 
 
 
@@ -19,7 +19,6 @@ const initialState: IBanner = {
     loading: false,
     error: null,
 }
-
 
 
 
@@ -47,6 +46,28 @@ const bannerSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string || "Failed to update category";
             })
+
+
+            // delete Banner
+            // delete banner
+            .addCase(DeleteBannerThunk.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+
+            .addCase(DeleteBannerThunk.fulfilled, (state, action) => {
+                state.loading = false;
+                console.log(action.payload)
+                // state.image = state.image.filter(
+                //     (banner) => banner._id !== action.payload
+                // );
+            })
+
+            .addCase(DeleteBannerThunk.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string || "Failed to delete banner";
+            });
+
 
     }
 })

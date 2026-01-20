@@ -1,6 +1,5 @@
 import { createAxiosSecure } from "../../../axios/axiosSequre"
-import type { IBanner } from "./Banner.type"
-
+import type {IBanner} from './banner.type'
 
 
 

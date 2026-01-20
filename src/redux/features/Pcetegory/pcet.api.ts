@@ -12,6 +12,11 @@ interface FetchCategoriesArgs {
 export const getCategoriesApi = async ({ token, page }: FetchCategoriesArgs) => {
     const axiosSe = createAxiosSecure(token);
 
+    if(!page){
+         const res = await axiosSe.get(`admin/categories?type=PRODUCT`);
+           return res.data.data;
+
+    }
     const res = await axiosSe.get(`admin/categories?type=PRODUCT&limit=5&page=${page}`);
 
     return res.data.data;
