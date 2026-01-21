@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
-import  pcetReducer from '../redux/features/Pcetegory/pcet.slice'
+
 import storage from "redux-persist/lib/storage";
 import authReducer from "./features/auth/authSlice";
 
@@ -14,7 +14,6 @@ const persistedAuthReducer = persistReducer(persistConfig, authReducer);
 export const store = configureStore({
     reducer: {
         auth: persistedAuthReducer,
-            pcet: pcetReducer,  
     },
 
     middleware: (getDefaultMiddleware) =>

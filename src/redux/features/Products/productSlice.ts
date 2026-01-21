@@ -55,42 +55,50 @@ interface IProduct {
     error: string | null;
 }
 
-// initailState 
-const initialState: IProduct = {
-    products: [],
-    loading: false,
-    error: null 
-}
+// // initailState 
+// const initialState: IProduct = {
+//     products: [],
+//     loading: false,
+//     error: null 
+// }
 
+//     // reducers: {
 
-// product slice
-import { createSlice } from "@reduxjs/toolkit";
-import { getProductThunk } from "./product.thunk";
+//     //     getBanner(state, action) {
+//     //         state.image = action.payload
+//     //     }
+//     // },
 
-const productSlice = createSlice({
-    name: "product",
-    initialState,
-    reducers: {
+// // product slice
+// import { createSlice } from "@reduxjs/toolkit";
+// import { getProductThunk } from "./product.thunk";
 
-    },
-    extraReducers: (builder) => {
-        builder
-            .addCase(getProductThunk.pending, (state) => {
-                state.loading = true;
-            })
+// const productSlice = createSlice({
+//     name: "product",
+//     initialState,
+//     reducers: {
+//         // getProduct (state,action){
+//         //     state.
+//         // }
+//     },
+//     extraReducers: (builder) => {
+//         builder
+//             .addCase(getProductThunk.pending, (state) => {
+//                 state.loading = true;
+//             })
 
-            .addCase(getProductThunk.fulfilled, (state, action) => {
-                state.loading = false;
-                state.products = action.payload;
-            })
+//             .addCase(getProductThunk.fulfilled, (state, action) => {
+//                 state.loading = false;
+//                 state.products = action.payload;
+//             })
 
-            .addCase(getProductThunk.rejected, (state, action) => {
-                state.loading = false;
-                // state.error = action.payload || "Something went wrong";
-            });
-    }
+//             .addCase(getProductThunk.rejected, (state, action) => {
+//                 state.loading = false;
+//                 // state.error = action.payload || "Something went wrong";
+//             });
+//     }
 
-})
+// })
 
-// export const { setCategory } = productSlice.actions;
-export default productSlice.reducer;
+// // export const { setCategory } = productSlice.actions;
+// // export default productSlice.reducer;

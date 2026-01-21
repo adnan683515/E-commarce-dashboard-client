@@ -3,45 +3,76 @@ import axios from "axios";
 import { createAxiosSecure } from "../../../axios/axiosSequre";
 
 interface FetchCategoriesArgs {
-    token: string | null;
-    page?: number | null;
+  token: string | null;
+  page?: number | null;
 }
 
-
-// get categories
+// GET categories
 export const getCategoriesApi = async ({ token, page }: FetchCategoriesArgs) => {
-    const axiosSe = createAxiosSecure(token);
+  if (!token) throw new Error("Token missing");
 
-    if(!page){
-         const res = await axiosSe.get(`admin/categories?type=PRODUCT`);
-           return res.data.data;
+  const axiosSe = createAxiosSecure(token);
+  const url = page
+    ? `admin/categories?type=PRODUCT&limit=5&page=${page}`
+    : `admin/categories?type=PRODUCT`;
 
-    }
-    const res = await axiosSe.get(`admin/categories?type=PRODUCT&limit=5&page=${page}`);
-
-    return res.data.data;
+  const res = await axiosSe.get(url);
+  return res.data.data;
 };
 
-
-
-// add categories api 
-interface IProductCetegory {
-    token: string | null,
-    image: File | undefined,
-    name: string
+// ADD category
+interface IProductCategory {
+  token: string | undefined;
+  image: File;
+  name: string;
 }
 
-export const addNewCategories = async ({ token, image, name }: IProductCetegory) => {
-    const formData = new FormData()
-    if (token && image && name) {
-        formData.append('image', image)
-        formData.append('name', name)
+export const addNewCategoryApi = async ({ token, image, name }: IProductCategory) => {
+  if (!token) throw new Error("Token missing");
+
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("image", image);
+
+  const res = await axios.post(
+    `${import.meta.env.VITE_BASE_URL}admin/products/add-category?type=PRODUCT`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
     }
-    const response = await axios.post( `${import.meta.env.VITE_BASE_URL}admin/products/add-category?type=PRODUCT`,       formData,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-        return response.data
+  );
+
+  return res.data;
+};
+
+// UPDATE category
+interface IUpdateCategory {
+  token: string | undefined;
+  _id: string;
+  name: string;
+  image?: File;
 }
+
+export const updateCategoryApi = async ({ token, _id, name, image }: IUpdateCategory) => {
+  if (!token) throw new Error("Token missing");
+
+  const formData = new FormData();
+  formData.append("name", name);
+  if (image) formData.append("image", image);
+
+  const res = await axios.patch(
+    `${import.meta.env.VITE_BASE_URL}admin/categories/${_id}`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return res.data;
+};

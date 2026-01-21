@@ -6,7 +6,8 @@ import { router } from './routes/router.tsx'
 import { Provider } from 'react-redux'
 import { store } from './redux/store.ts'
 import { Toaster } from 'sonner'
-
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+const queryClient = new QueryClient();
 
 
 
@@ -16,11 +17,20 @@ createRoot(document.getElementById('root')!).render(
 
     <Provider store={store}>
 
-      <RouterProvider router={router}>
 
-      </RouterProvider>
 
-      <Toaster richColors   position="top-right" />
+
+      <QueryClientProvider client={queryClient}>
+
+        <RouterProvider router={router}>
+
+        </RouterProvider>
+
+        <Toaster richColors position="top-right" />
+      </QueryClientProvider>
+
+
+
 
     </Provider>
 

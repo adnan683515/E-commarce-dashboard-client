@@ -1,61 +1,91 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  Plus,
-  ChevronRight,
-  Edit3,
-  Upload,
-  X,
-  ChevronLeft
-} from 'lucide-react';
-import { addNewCategoryThunk, fetchCategories, updateCategoryThunk } from "../../../redux/features/Pcetegory/pcet.thunk";
-import { useAppDispatch, useAppSelector } from '../../../redux/hook';
+import { Plus, ChevronRight, Edit3, Upload, X, ChevronLeft } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AuthReduxHook from '../../../Hook/AuthReduxHook';
 import { toast } from 'sonner';
-
+import { getCategoriesApi, addNewCategoryApi, updateCategoryApi } from '../../../redux/features/Pcetegory/pcet.api';
 
 interface IUpdate {
   _id: string;
-  image: string;
-  name: string
+  image: string ;
+  name: string;
+}
+
+
+export interface IProductCategory {
+  _id: string;
+  name: string;
+  imageUrl: string;
+  imagePublicId: string;
+  type: "PRODUCT" | "SERVICE" | string; // adjust if you have other types
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 const Catalog: React.FC = () => {
-
-
+  const { token } = AuthReduxHook();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [cetName, setCetName] = useState<string | null>(null)
+  const [cetName, setCetName] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { token } = AuthReduxHook()
-  const [modalTitle, setModalTitle] = useState<string | null>(null)
-  const [modalSubtitle, setModalSubtitle] = useState<string | null>(null)
-  const [updateCategoryInfo, setUpdateCategoryinfo] = useState<IUpdate | null>(null)
-
-
+  const [modalTitle, setModalTitle] = useState<string | null>(null);
+  const [modalSubtitle, setModalSubtitle] = useState<string | null>(null);
+  const [updateCategoryInfo, setUpdateCategoryinfo] = useState<IUpdate | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
 
+  const queryClient = useQueryClient();
 
+  // ===================== GET categories =====================
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ['categories', currentPage],
+    queryFn: async () => {
+      if (!token) return [];
+      return await getCategoriesApi({ token, page: currentPage });
+    },
+    enabled: !!token,
+  });
 
-
-  const dispatch = useAppDispatch();
-  const { categories, loading, error } = useAppSelector(state => state.pcet);
-
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchCategories({ token, page: currentPage }));
-
-    }
-  }, [token, dispatch, currentPage ])
-
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
   const totalPages = Math.ceil(categories.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
 
+  // ===================== Mutations =====================
+  const addCategoryMutation = useMutation({
+    mutationFn: (newCategory: { image: File; name: string }) => addNewCategoryApi({ token, ...newCategory }),
+    onSuccess: () => {
+      toast.success('Product Category Created Successfully!');
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setIsModalOpen(false);
+      setCetName(null);
+      setSelectedFile(null);
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || 'Failed to create category');
+    },
+  });
 
+  const updateCategoryMutation = useMutation({
+    mutationFn: (updateData: IUpdate & { image?: File }) => updateCategoryApi({ token, ...updateData }),
+    onSuccess: () => {
+      toast.success('Update Category Successfully!');
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setIsModalOpen(false);
+      setUpdateCategoryinfo(null);
+      setSelectedFile(null);
+      setCetName(null);
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Doesn't Update!!");
+    },
+  });
+
+  // ===================== Handlers =====================
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -64,98 +94,50 @@ const Catalog: React.FC = () => {
     }
   };
 
+  const onUploadClick = () => fileInputRef.current?.click();
 
+  const closeModal = () => setIsModalOpen(false);
 
+  const handleSubmit = () => {
+    if (modalTitle?.startsWith('Create')) {
+      if (!cetName || !selectedFile) return toast.error('Name and Image filed is required!!');
+      addCategoryMutation.mutate({ name: cetName, image: selectedFile });
+    } else {
+      if (!updateCategoryInfo) return;
+      updateCategoryMutation.mutate({
+        _id: updateCategoryInfo._id,
+        name: cetName || updateCategoryInfo.name,
+        image: selectedFile || undefined,
+      });
+    }
+  };
 
   useEffect(() => {
-    if (modalTitle?.startsWith("Create")) {
-      setPreviewUrl(null); // new creation, no previous preview
+    if (modalTitle?.startsWith('Create')) {
+      setPreviewUrl(null);
+      setSelectedFile(null);
     } else {
-      setPreviewUrl(updateCategoryInfo?.image ?? null); // show existing image for edit
+      setPreviewUrl(updateCategoryInfo?.image ?? null);
+      setCetName(updateCategoryInfo?.name ?? null);
+      setSelectedFile(null);
     }
-    setSelectedFile(null); // reset file selection
   }, [updateCategoryInfo, modalTitle]);
 
-
-
-
   const imageSrc = selectedFile
-    ? URL.createObjectURL(selectedFile) // new selected file
-    : updateCategoryInfo?.image ?? undefined; // existing category image
+    ? URL.createObjectURL(selectedFile)
+    : updateCategoryInfo?.image ?? undefined;
 
-
-
-  // file upload
-  const onUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-
-
-
-  // add product cetegory 
-  const productCetegory = async () => {
-    if (token && selectedFile && cetName) {
-
-      const result = await dispatch(addNewCategoryThunk({ token, image: selectedFile, name: cetName }))
-
-      if (result?.meta?.requestStatus == "fulfilled") {
-        dispatch(fetchCategories({ token, page: currentPage }));
-        setIsModalOpen(false)
-        return toast.success('Product Category Create Successfully!')
-      }
-      return toast.error("Already Exits!")
-
-
-    } else {
-      return toast.error('Name and Image filed is required!!')
-    }
-  }
-
-
-
-  // update category
-  const updateCategoryFn = async () => {
-    try {
-      const res = await dispatch(updateCategoryThunk({ token, name: updateCategoryInfo?.name, _id: updateCategoryInfo?._id, image: selectedFile }))
-      console.log(res)
-      if (res.meta.requestStatus == 'fulfilled') {
-        if (token) {
-          dispatch(fetchCategories({ token, page: currentPage }));
-        }
-        setIsModalOpen(false)
-        return toast.success('Update Category Successfully!')
-      }
-      else{
-        return    toast.error(error || "Doesn't Update ❌");
-      }
-    }
-    catch (error: any) {
-      console.log(error)
-    }
-
-  }
-
-
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-
-  // if(loading){
-  //   return <div className='flex justify-center items-center min-h-screen'> <h1>Loading............</h1> </div>
-  // }
-
-
+  // ===================== Render =====================
   return (
     <div className="bg-[#F4F9FD]  text-slate-800 relative transition-all duration-100">
       {/* Header */}
-
-
       <div className="mb-6">
-        <h1 className="text-[18px] sm:text-[24px] font-bold text-slate-900 tracking-tight">Product Category Management</h1>
-        <p className="text-[14px] text-slate-500 mt-1">Manage product taxonomy, hierarchy, and custom attributes fields.</p>
+        <h1 className="text-[18px] sm:text-[24px] font-bold text-slate-900 tracking-tight">
+          Product Category Management
+        </h1>
+        <p className="text-[14px] text-slate-500 mt-1">
+          Manage product taxonomy, hierarchy, and custom attributes fields.
+        </p>
       </div>
 
       {/* Action Bar */}
@@ -166,11 +148,12 @@ const Catalog: React.FC = () => {
           </span>
           <button
             onClick={() => {
-              setModalTitle('Create Category')
-              setModalSubtitle('Create new product category for the marketplace')
-              setIsModalOpen(true)
+              setModalTitle('Create Category');
+              setModalSubtitle('Create new product category for the marketplace');
+              setIsModalOpen(true);
+              setUpdateCategoryinfo(null);
             }}
-            className="flex items-center gap-1 sm:gap-2 bg-[#2E90D1] hover:bg-[#257ab3] text-white px-2 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-[11px] sm:text-[14px] transition-all duration-100 active:scale-95  "
+            className="flex items-center gap-1 sm:gap-2 bg-[#2E90D1] hover:bg-[#257ab3] text-white px-2 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-[11px] sm:text-[14px] transition-all duration-100 active:scale-95"
           >
             <Plus size={16} className="sm:w-[18px]" />
             <span className="whitespace-nowrap">Add New Category</span>
@@ -192,7 +175,7 @@ const Catalog: React.FC = () => {
       </div>
 
       {/* Category Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden  ">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
@@ -203,55 +186,52 @@ const Catalog: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {categories.map((cat) => {
-                return (
-                  <React.Fragment key={cat._id}>
-                    <tr className="bg-[#E3EFFB]/50 hover:bg-[#E3EFFB] transition-colors duration-100">
-                      <td className='px-6 py-4'>
-                        <img className='w-14  rounded-full  h-14 border-2 border-sky-500' src={cat.imageUrl} alt="" />
-                      </td>
-                      <td className="px-6 py-4">
+              {categories?.map((cat : IProductCategory) => (
+                <React.Fragment key={cat._id}>
+                  <tr className="bg-[#E3EFFB]/50 hover:bg-[#E3EFFB] transition-colors duration-100">
+                    <td className="px-6 py-4">
+                      <img
+                        className="w-14 rounded-full h-14 border-2 border-sky-500"
+                        src={cat.imageUrl}
+                        alt=""
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="font-bold text-slate-900 text-[15px]">{cat.name}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-3">
                         <button
-
-                          className="flex items-center gap-2 group outline-none cursor-pointer"
+                          onClick={() => {
+                            setModalTitle('Update Category');
+                            setModalSubtitle('Update product category for the marketplace');
+                            setUpdateCategoryinfo({ _id: cat._id, name: cat.name, image: cat.imageUrl });
+                            setIsModalOpen(true);
+                          }}
+                          className="flex items-center gap-1.5 bg-[#2E90D1] text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:bg-[#257ab3] transition-all duration-100"
                         >
-
-                          <span className="font-bold text-slate-900 text-[15px]">{cat.name}</span>
+                          <Edit3 size={14} /> Edit
                         </button>
-                      </td>
-
-
-                      <td className="px-6 py-4">
-                        <div className="flex justify-end gap-3">
-
-                          <button onClick={() => {
-                            setModalTitle('Update Category')
-                            setModalSubtitle("Update product category for the marketplace")
-                            setUpdateCategoryinfo({ _id: cat._id, name: cat.name, image: cat.imageUrl })
-                            setIsModalOpen(true)
-                          }} className="flex items-center gap-1.5 bg-[#2E90D1] text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:bg-[#257ab3] transition-all duration-100">
-                            <Edit3 size={14} /> Edit
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-
-
-                  </React.Fragment>
-                );
-              })}
+                      </div>
+                    </td>
+                  </tr>
+                </React.Fragment>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
       <div className="flex items-center justify-between px-2 py-4">
         <p className="text-sm text-slate-600 font-medium">
-          Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, categories.length)} of {categories.length} entries
+          Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, categories.length)} of{' '}
+          {categories.length} entries
         </p>
         <div className="flex items-center gap-2">
           <button
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage(prev => prev - 1)}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
             className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft size={18} />
@@ -261,10 +241,9 @@ const Catalog: React.FC = () => {
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
-              className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${currentPage === i + 1
-                ? 'bg-sky-500 text-white shadow-md shadow-sky-200'
-                : 'text-slate-600 hover:bg-sky-50'
-                }`}
+              className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${
+                currentPage === i + 1 ? 'bg-sky-500 text-white shadow-md shadow-sky-200' : 'text-slate-600 hover:bg-sky-50'
+              }`}
             >
               {i + 1}
             </button>
@@ -272,7 +251,7 @@ const Catalog: React.FC = () => {
 
           <button
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(prev => prev + 1)}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
             className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronRight size={18} />
@@ -280,16 +259,19 @@ const Catalog: React.FC = () => {
         </div>
       </div>
 
-      {/* CREATE CATEGORY MODAL */}
+      {/* CREATE / UPDATE MODAL */}
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px] transition-all duration-500 ${isModalOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px] transition-all duration-500 ${
+          isModalOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+        }`}
         onClick={closeModal}
       >
         <div
-          className={`bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative transition-all duration-500 transform ${isModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
+          className={`bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative transition-all duration-500 transform ${
+            isModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
+          }`}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Modal Header */}
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-[20px] font-bold text-slate-900">{modalTitle}</h2>
@@ -305,12 +287,16 @@ const Catalog: React.FC = () => {
             <div>
               <label className="block text-[14px] font-bold text-slate-900 mb-1">Category Name</label>
               <p className="text-[12px] text-slate-400 mb-2">Name your category</p>
-              <input defaultValue={modalTitle?.split(' ')[0] != 'Create' ? updateCategoryInfo?.name : ''} onChange={(e) => setCetName(e.target.value)} type="text" placeholder="Enter Category Name" className="w-full border border-slate-200 rounded-xl px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#D2E9F6]" />
+              <input
+                defaultValue={modalTitle?.startsWith('Create') ? '' : updateCategoryInfo?.name}
+                onChange={(e) => setCetName(e.target.value)}
+                type="text"
+                placeholder="Enter Category Name"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-[14px] outline-none focus:ring-2 focus:ring-[#D2E9F6]"
+              />
             </div>
 
-
-
-            {/* Functional Upload Area */}
+            {/* Upload Area */}
             <div
               onClick={onUploadClick}
               className="border-2 border-dashed border-[#D2E9F6] bg-[#F4F9FD] rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-[#E3F2FD] transition-colors group overflow-hidden"
@@ -321,21 +307,13 @@ const Catalog: React.FC = () => {
                 onChange={handleFileChange}
                 className="hidden"
                 accept="image/*"
-
               />
-
 
               {imageSrc ? (
                 <div className="flex flex-col items-center">
-                  <img
-                    src={imageSrc}
-                    alt="Preview"
-                    className="w-20 h-20 object-cover rounded-lg mb-2 border-2 border-white shadow-md"
-                  />
+                  <img src={imageSrc} alt="Preview" className="w-20 h-20 object-cover rounded-lg mb-2 border-2 border-white shadow-md" />
                   {selectedFile?.name && (
-                    <p className="text-[12px] font-semibold text-[#2E90D1] truncate max-w-[200px]">
-                      {selectedFile.name}
-                    </p>
+                    <p className="text-[12px] font-semibold text-[#2E90D1] truncate max-w-[200px]">{selectedFile.name}</p>
                   )}
                 </div>
               ) : (
@@ -347,23 +325,20 @@ const Catalog: React.FC = () => {
                   <p className="text-[12px] text-slate-400 mt-1">JPEG or PNG; Max size 1 MB</p>
                 </div>
               )}
-
             </div>
 
             {/* Actions */}
             <div className="flex gap-3 pt-2">
-              <button onClick={closeModal} className="flex-1 border border-slate-200 text-slate-600 py-3 rounded-xl font-bold text-[14px] hover:bg-slate-50 transition-colors cursor-pointer">
+              <button
+                onClick={closeModal}
+                className="flex-1 border border-slate-200 text-slate-600 py-3 rounded-xl font-bold text-[14px] hover:bg-slate-50 transition-colors cursor-pointer"
+              >
                 Cancel
               </button>
-              <button onClick={() => {
-                if (modalTitle?.split(' ')[0] == 'Create') {
-                  productCetegory()
-                }
-                else {
-                  updateCategoryFn()
-                }
-
-              }} className="flex-1 bg-[#2E90D1] text-white py-3 rounded-xl font-bold text-[14px] hover:bg-[#257ab3] shadow-md shadow-blue-100 transition-all active:scale-95">
+              <button
+                onClick={handleSubmit}
+                className="flex-1 bg-[#2E90D1] text-white py-3 rounded-xl font-bold text-[14px] hover:bg-[#257ab3] shadow-md shadow-blue-100 transition-all active:scale-95"
+              >
                 {modalTitle}
               </button>
             </div>

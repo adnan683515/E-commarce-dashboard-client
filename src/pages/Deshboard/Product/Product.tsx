@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Search, Filter, ChevronLeft, ChevronRight, Store, Star, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Filter, Store, Star, X } from 'lucide-react';
 import sneakers from '../../../assets/sneakers.jpg'
-import { useAppDispatch, useAppSelector } from '../../../redux/hook';
-import { getProductThunk } from '../../../redux/features/Products/product.thunk';
+import { useAppDispatch } from '../../../redux/hook';
+
 import AuthReduxHook from '../../../Hook/AuthReduxHook';
 import type { TProduct } from '../../../redux/features/Products/productSlice';
-import { fetchCategories } from '../../../redux/features/Pcetegory/pcet.thunk';
+import { useQuery } from '@tanstack/react-query';
+import { getCategoriesApi } from '../../../redux/features/Pcetegory/pcet.api';
+import { getProductApi } from '../../../redux/features/Products/product.thunk';
+import type { IProductCategory } from '../Catalog/Catalog';
 
 
 interface Product {
@@ -24,11 +27,9 @@ const Product: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<TProduct | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { token } = AuthReduxHook()
-  const dispatch = useAppDispatch()
   let [page, setPage] = useState<number>(1)
-  const [allProducts, setAllProducts] = useState<TProduct[] | null>([]);
   const [status, setStatus] = useState<"PENDING" | "APPROVED" | undefined>(undefined);
-  const [catId,setCatId] = useState<string | undefined>(undefined)
+  const [catId, setCatId] = useState<string | undefined>(undefined)
 
   // Handle smooth transition timing
   const openModal = (product: TProduct) => {
@@ -41,35 +42,37 @@ const Product: React.FC = () => {
     setTimeout(() => setSelectedProduct(null), 1000); // Wait for transition to finish
   };
 
-  // get products 
-  useEffect(() => {
-    const productFetch = async () => {
+
+
+  const { data: allProducts = [], isLoading: ProductLoading } = useQuery({
+    queryKey: ['products', status, catId, page],
+    queryFn: (async () => {
       if (token) {
-        const res = await dispatch(getProductThunk({ token, page, status , category : catId}))
-        setAllProducts(res.payload)
+        const res = await getProductApi({ token, page, status, category: catId })
+        console.log(res)
+        return res
       }
-    }
-    productFetch()
+    }),
+    enabled: !!token,
+  })
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      if (!token) return [];
+      return await getCategoriesApi({ token });
+    },
+    enabled: !!token,
+  });
 
-  }, [status, page, catId])
 
 
 
-    const { categories } = useAppSelector(state => state.pcet);
- 
-
-    useEffect(() => {
-      if (token) {
-        dispatch(fetchCategories({ token }));
-  
-      }
-    }, [token, dispatch])
-    console.log(catId, allProducts)
 
 
 
   const isPrevDisabled = page <= 1;
   const isNextDisabled = !allProducts?.length || allProducts.length < 8;
+
   return (
     <div className=" md:p-8  min-h-screen relative">
       {/* Header & Description */}
@@ -86,8 +89,11 @@ const Product: React.FC = () => {
 
         <div className="relative">
           <select
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              setCatId(undefined)
               setStatus(e.target.value as "PENDING" | "APPROVED" | undefined)
+            }
+
             }
             className="appearance-none border border-gray-200 rounded-lg px-4 py-2 pr-10 text-sm font-medium cursor-pointer bg-white text-gray-700 outline-none transition-all hover:border-sky-400 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 font-semibold"
           >
@@ -106,13 +112,16 @@ const Product: React.FC = () => {
 
         <div className="relative">
           <select
-          onChange={(e)=>setCatId(e.target.value)}
+            onChange={(e) => {
+              setStatus(undefined)
+              setCatId(e.target.value)
+            }}
             className="appearance-none border border-gray-200 rounded-lg px-4 py-2 pr-10 text-sm font-medium cursor-pointer bg-white text-gray-700 outline-none transition-all hover:border-sky-400 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 font-semibold"
           >
 
             {
-              categories?.map((item)=>{
-                return    <option value={item?._id}>Status : {item?.name}</option>
+              categories?.map((item: IProductCategory) => {
+                return <option key={item?._id} value={item?._id}>Status : {item?.name}</option>
               })
             }
           </select>
@@ -172,8 +181,8 @@ const Product: React.FC = () => {
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {allProducts?.map((product, idx) => (
-          <div key={idx} className="bg-sky-100  rounded-xl   border-gray-100 overflow-hidden group">
+        {allProducts?.map((product: TProduct) => (
+          <div key={product?._id} className="bg-sky-100  rounded-xl   border-gray-100 overflow-hidden group">
             <div className="relative  h-[30vh] w-full aspect-square bg-[#A5C9E1] flex items-center justify-center ">
               <span className={`absolute top-3 right-3  ${product?.approvalStatus == "PENDING" ? "bg-yellow-400" : "bg-green-600"}  text-white text-[10px] font-bold px-3 py-1 rounded-full `}>
                 {product?.approvalStatus == "PENDING" ? "Pending" : "Approved"}
@@ -402,11 +411,7 @@ const Product: React.FC = () => {
                           Extremely comfortable for long runs. The cushioning is exactly what I needed.
                         </p>
                         <div className="flex gap-2">
-                          {Array(3).fill(0).map((_, i) => (
-                            <div key={i} className="w-14 h-14 bg-gray-100 rounded-xl border border-gray-50 overflow-hidden">
-                              <img src={selectedProduct.image} className="w-full h-full object-cover opacity-60" alt="review" />
-                            </div>
-                          ))}
+
                         </div>
                       </div>
                     ))}
