@@ -7,17 +7,24 @@ import { getCategoriesApi, addNewCategoryApi, updateCategoryApi } from '../../..
 
 interface IUpdate {
   _id: string;
-  image: string ;
+  image: string;
   name: string;
 }
 
+export interface Tmeta {
+  // {total: 34, page: 1, limit: 5, totalPages: 7}
+  total: number,
+  page: number,
+  limit: number,
+  totalPages: number
+}
 
 export interface IProductCategory {
   _id: string;
   name: string;
   imageUrl: string;
   imagePublicId: string;
-  type: "PRODUCT" | "SERVICE" | string; // adjust if you have other types
+  type: "PRODUCT" | "SERVICE" | string;
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -28,42 +35,45 @@ const Catalog: React.FC = () => {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [cetName, setCetName] = useState<string | null>(null);
+  const [cetName, setCetName] = useState<string>(""); // Initialize as empty string
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalTitle, setModalTitle] = useState<string | null>(null);
-  const [modalSubtitle, setModalSubtitle] = useState<string | null>(null);
+  const [modalTitle, setModalTitle] = useState<string>("Create Category");
+  const [modalSubtitle, setModalSubtitle] = useState<string>("");
   const [updateCategoryInfo, setUpdateCategoryinfo] = useState<IUpdate | null>(null);
+  const [metaInfo, setMetaInfo] = useState<Tmeta | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const itemsPerPage = 10; // Adjusted from 2 for better UI, keep as 2 if intended
 
   const queryClient = useQueryClient();
 
   // ===================== GET categories =====================
-  const { data: categories = [], isLoading } = useQuery({
+  const { data: categories = [], isLoading } = useQuery<IProductCategory[]>({
     queryKey: ['categories', currentPage],
     queryFn: async () => {
       if (!token) return [];
-      return await getCategoriesApi({ token, page: currentPage });
+      const response = await getCategoriesApi({ token, page: currentPage });
+      setMetaInfo(response?.data?.meta)
+      return response.data.data || [];
     },
     enabled: !!token,
   });
 
-  const totalPages = Math.ceil(categories.length / itemsPerPage);
+
+  const totalPages = metaInfo && Math.ceil( metaInfo?.total / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
 
   // ===================== Mutations =====================
   const addCategoryMutation = useMutation({
-    mutationFn: (newCategory: { image: File; name: string }) => addNewCategoryApi({ token, ...newCategory }),
+    mutationFn: (newCategory: { image: File; name: string }) =>
+      addNewCategoryApi({ token: token as string, ...newCategory }),
     onSuccess: () => {
       toast.success('Product Category Created Successfully!');
       queryClient.invalidateQueries({ queryKey: ['categories'] });
-      setIsModalOpen(false);
-      setCetName(null);
-      setSelectedFile(null);
+      handleCloseModal();
     },
     onError: (err: any) => {
       toast.error(err?.message || 'Failed to create category');
@@ -71,14 +81,12 @@ const Catalog: React.FC = () => {
   });
 
   const updateCategoryMutation = useMutation({
-    mutationFn: (updateData: IUpdate & { image?: File }) => updateCategoryApi({ token, ...updateData }),
+    mutationFn: (updateData: { _id: string; name: string; image?: File }) =>
+      updateCategoryApi({ token: token as string, ...updateData }),
     onSuccess: () => {
       toast.success('Update Category Successfully!');
       queryClient.invalidateQueries({ queryKey: ['categories'] });
-      setIsModalOpen(false);
-      setUpdateCategoryinfo(null);
-      setSelectedFile(null);
-      setCetName(null);
+      handleCloseModal();
     },
     onError: (err: any) => {
       toast.error(err?.message || "Doesn't Update!!");
@@ -90,17 +98,26 @@ const Catalog: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     }
   };
 
   const onUploadClick = () => fileInputRef.current?.click();
 
-  const closeModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setCetName("");
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setUpdateCategoryinfo(null);
+  };
 
   const handleSubmit = () => {
-    if (modalTitle?.startsWith('Create')) {
-      if (!cetName || !selectedFile) return toast.error('Name and Image filed is required!!');
+    if (!token) return toast.error("Authentication token missing");
+
+    if (modalTitle.startsWith('Create')) {
+      if (!cetName || !selectedFile) return toast.error('Name and Image field is required!!');
       addCategoryMutation.mutate({ name: cetName, image: selectedFile });
     } else {
       if (!updateCategoryInfo) return;
@@ -113,23 +130,27 @@ const Catalog: React.FC = () => {
   };
 
   useEffect(() => {
-    if (modalTitle?.startsWith('Create')) {
+    if (modalTitle.startsWith('Create')) {
       setPreviewUrl(null);
-      setSelectedFile(null);
-    } else {
-      setPreviewUrl(updateCategoryInfo?.image ?? null);
-      setCetName(updateCategoryInfo?.name ?? null);
-      setSelectedFile(null);
+      setCetName("");
+    } else if (updateCategoryInfo) {
+      setPreviewUrl(updateCategoryInfo.image);
+      setCetName(updateCategoryInfo.name);
     }
   }, [updateCategoryInfo, modalTitle]);
 
-  const imageSrc = selectedFile
-    ? URL.createObjectURL(selectedFile)
-    : updateCategoryInfo?.image ?? undefined;
+  // Clean up preview URLs to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   // ===================== Render =====================
   return (
-    <div className="bg-[#F4F9FD]  text-slate-800 relative transition-all duration-100">
+    <div className="bg-[#F4F9FD] text-slate-800 relative transition-all duration-100 min-h-screen p-4 sm:p-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-[18px] sm:text-[24px] font-bold text-slate-900 tracking-tight">
@@ -144,14 +165,13 @@ const Catalog: React.FC = () => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-4">
           <span className="text-[14px] sm:text-[18px] font-bold text-slate-900 whitespace-nowrap">
-            Total Categories: {categories.length}
+            Total Categories: { metaInfo?.total }
           </span>
           <button
             onClick={() => {
               setModalTitle('Create Category');
               setModalSubtitle('Create new product category for the marketplace');
               setIsModalOpen(true);
-              setUpdateCategoryinfo(null);
             }}
             className="flex items-center gap-1 sm:gap-2 bg-[#2E90D1] hover:bg-[#257ab3] text-white px-2 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-[11px] sm:text-[14px] transition-all duration-100 active:scale-95"
           >
@@ -175,7 +195,7 @@ const Catalog: React.FC = () => {
       </div>
 
       {/* Category Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
@@ -186,47 +206,51 @@ const Catalog: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {categories?.map((cat : IProductCategory) => (
-                <React.Fragment key={cat._id}>
-                  <tr className="bg-[#E3EFFB]/50 hover:bg-[#E3EFFB] transition-colors duration-100">
+              {isLoading ? (
+                <tr><td colSpan={3} className="text-center py-10 font-bold text-slate-400">Loading...</td></tr>
+              ) : categories.length === 0 ? (
+                <tr><td colSpan={3} className="text-center py-10 font-bold text-slate-400">No categories found</td></tr>
+              ) : (
+                categories.map((cat: IProductCategory) => (
+                  <tr key={cat._id} className="bg-[#E3EFFB]/50 hover:bg-[#E3EFFB] transition-colors duration-100">
                     <td className="px-6 py-4">
                       <img
-                        className="w-14 rounded-full h-14 border-2 border-sky-500"
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-sky-500 object-cover"
                         src={cat.imageUrl}
-                        alt=""
+                        alt={cat.name}
                       />
                     </td>
                     <td className="px-6 py-4">
                       <span className="font-bold text-slate-900 text-[15px]">{cat.name}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-3">
-                        <button
-                          onClick={() => {
-                            setModalTitle('Update Category');
-                            setModalSubtitle('Update product category for the marketplace');
-                            setUpdateCategoryinfo({ _id: cat._id, name: cat.name, image: cat.imageUrl });
-                            setIsModalOpen(true);
-                          }}
-                          className="flex items-center gap-1.5 bg-[#2E90D1] text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:bg-[#257ab3] transition-all duration-100"
-                        >
-                          <Edit3 size={14} /> Edit
-                        </button>
-                      </div>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => {
+                          setModalTitle('Update Category');
+                          setModalSubtitle('Update product category for the marketplace');
+                          setUpdateCategoryinfo({ _id: cat._id, name: cat.name, image: cat.imageUrl });
+                          setIsModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-1.5 bg-[#2E90D1] text-white px-3 py-1.5 rounded-lg text-[12px] font-bold hover:bg-[#257ab3] transition-all duration-100"
+                      >
+                        <Edit3 size={14} /> Edit
+                      </button>
                     </td>
                   </tr>
-                </React.Fragment>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-2 py-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between px-2 py-4 gap-4">
         <p className="text-sm text-slate-600 font-medium">
-          Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, categories.length)} of{' '}
-          {categories.length} entries
+         {
+          metaInfo && ` Showing ${metaInfo.total > 0 ? startIndex + 1 : 0} to ${Math.min(startIndex + itemsPerPage, metaInfo.total)} of ${' '}
+          ${metaInfo.total} entries`
+         }
         </p>
         <div className="flex items-center gap-2">
           <button
@@ -241,16 +265,15 @@ const Catalog: React.FC = () => {
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
-              className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${
-                currentPage === i + 1 ? 'bg-sky-500 text-white shadow-md shadow-sky-200' : 'text-slate-600 hover:bg-sky-50'
-              }`}
+              className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${currentPage === i + 1 ? 'bg-sky-500 text-white shadow-md shadow-sky-200' : 'text-slate-600 hover:bg-sky-50'
+                }`}
             >
               {i + 1}
             </button>
           ))}
 
           <button
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={() => setCurrentPage((prev) => prev + 1)}
             className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
@@ -261,34 +284,31 @@ const Catalog: React.FC = () => {
 
       {/* CREATE / UPDATE MODAL */}
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px] transition-all duration-500 ${
-          isModalOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-        }`}
-        onClick={closeModal}
+        className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px] transition-all duration-500 ${isModalOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+          }`}
+        onClick={handleCloseModal}
       >
         <div
-          className={`bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative transition-all duration-500 transform ${
-            isModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
-          }`}
+          className={`bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative transition-all duration-500 transform ${isModalOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
+            }`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-[20px] font-bold text-slate-900">{modalTitle}</h2>
-              <p className="text-[13px] text-slate-500">{modalSubtitle}.</p>
+              <p className="text-[13px] text-slate-500">{modalSubtitle}</p>
             </div>
-            <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+            <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
               <X size={20} />
             </button>
           </div>
 
-          {/* Form Fields */}
           <div className="space-y-5">
             <div>
               <label className="block text-[14px] font-bold text-slate-900 mb-1">Category Name</label>
               <p className="text-[12px] text-slate-400 mb-2">Name your category</p>
               <input
-                defaultValue={modalTitle?.startsWith('Create') ? '' : updateCategoryInfo?.name}
+                value={cetName}
                 onChange={(e) => setCetName(e.target.value)}
                 type="text"
                 placeholder="Enter Category Name"
@@ -309,10 +329,10 @@ const Catalog: React.FC = () => {
                 accept="image/*"
               />
 
-              {imageSrc ? (
+              {previewUrl ? (
                 <div className="flex flex-col items-center">
-                  <img src={imageSrc} alt="Preview" className="w-20 h-20 object-cover rounded-lg mb-2 border-2 border-white shadow-md" />
-                  {selectedFile?.name && (
+                  <img src={previewUrl} alt="Preview" className="w-20 h-20 object-cover rounded-lg mb-2 border-2 border-white shadow-md" />
+                  {selectedFile && (
                     <p className="text-[12px] font-semibold text-[#2E90D1] truncate max-w-[200px]">{selectedFile.name}</p>
                   )}
                 </div>
@@ -330,16 +350,19 @@ const Catalog: React.FC = () => {
             {/* Actions */}
             <div className="flex gap-3 pt-2">
               <button
-                onClick={closeModal}
+                type="button"
+                onClick={handleCloseModal}
                 className="flex-1 border border-slate-200 text-slate-600 py-3 rounded-xl font-bold text-[14px] hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
+                type="button"
+                disabled={addCategoryMutation.isPending || updateCategoryMutation.isPending}
                 onClick={handleSubmit}
-                className="flex-1 bg-[#2E90D1] text-white py-3 rounded-xl font-bold text-[14px] hover:bg-[#257ab3] shadow-md shadow-blue-100 transition-all active:scale-95"
+                className="flex-1 bg-[#2E90D1] text-white py-3 rounded-xl font-bold text-[14px] hover:bg-[#257ab3] shadow-md shadow-blue-100 transition-all active:scale-95 disabled:opacity-50"
               >
-                {modalTitle}
+                {addCategoryMutation.isPending || updateCategoryMutation.isPending ? 'Processing...' : modalTitle}
               </button>
             </div>
           </div>

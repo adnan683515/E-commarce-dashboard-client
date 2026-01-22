@@ -57,7 +57,7 @@ export const getProductApi = async ({ token, page, status, category }: GetProduc
     const res = await axiosSecure.get(url);
 
     // Return the product array (assuming backend returns res.data.data)
-    return res.data.data;
+    return res;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to fetch products");
   }

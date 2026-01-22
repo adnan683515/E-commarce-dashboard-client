@@ -13,11 +13,12 @@ export const getCategoriesApi = async ({ token, page }: FetchCategoriesArgs) => 
 
   const axiosSe = createAxiosSecure(token);
   const url = page
-    ? `admin/categories?type=PRODUCT&limit=5&page=${page}`
+    ? `admin/categories?type=PRODUCT&limit=10&page=${page}`
     : `admin/categories?type=PRODUCT`;
 
   const res = await axiosSe.get(url);
-  return res.data.data;
+  console.log(res)
+  return res;
 };
 
 // ADD category

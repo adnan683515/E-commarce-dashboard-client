@@ -1,4 +1,6 @@
-import React from 'react';
+
+
+import type { TOrder } from './DashboardHomepage';
 
 // Define the shape of an individual order
 interface Order {
@@ -12,38 +14,13 @@ interface Order {
     amount: string;
 }
 
-const RecentOrders: React.FC = () => {
+interface RecentOrdersProps {
+  recentOdersData: TOrder[];
+}
+const RecentOrders = ({recentOdersData} : RecentOrdersProps) => {
 
-    const orders: Order[] = [
-        {
-            id: '#12586',
-            buyer: { name: 'Alice Cooper', avatar: '/human.png' },
-            seller: 'TectGedgeHub',
-            status: 'Complete',
-            amount: '$200',
-        },
-        {
-            id: '#12586',
-            buyer: { name: 'Alice Cooper', avatar: '/human.png' },
-            seller: 'TectGedgeHub',
-            status: 'Shipped',
-            amount: '$200',
-        },
-        {
-            id: '#12586',
-            buyer: { name: 'Alice Cooper', avatar: '/human.png' },
-            seller: 'TectGedgeHub',
-            status: 'Pending',
-            amount: '$200',
-        },
-        {
-            id: '#12586',
-            buyer: { name: 'Alice Cooper', avatar: '/human.png' },
-            seller: 'TectGedgeHub',
-            status: 'Complete',
-            amount: '$200',
-        },
-    ];
+
+
 
     // Helper to style status badges
     const getStatusStyles = (status: string) => {
@@ -82,15 +59,15 @@ const RecentOrders: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {orders.map((order, index) => (
+                        {recentOdersData.map((order, index) => (
                             <tr key={index} className="hover:bg-gray-50 transition-colors group">
                                 <td className="px-4 py-4 text-sm text-gray-600 font-medium">
-                                    {order.id}
+                                    {order?.orderId}
                                 </td>
                                 <td className="px-4 py-4">
                                     <div className="flex items-center gap-3">
                                         <img
-                                            src={order.buyer.avatar}
+                                            src={order.buyer?.image ? order.buyer?.image : '/human.png' }
                                             alt={order.buyer.name}
                                             className="w-8 h-8 rounded-full object-cover border border-gray-200"
                                         />
@@ -100,7 +77,7 @@ const RecentOrders: React.FC = () => {
                                     </div>
                                 </td>
                                 <td className="px-4 py-4 text-sm text-gray-600">
-                                    {order.seller}
+                                    {order.seller?.shopName}
                                 </td>
                                 <td className="px-4 py-4 text-center">
                                     <span
@@ -112,7 +89,7 @@ const RecentOrders: React.FC = () => {
                                     </span>
                                 </td>
                                 <td className="px-4 py-4 text-sm font-bold text-gray-900">
-                                    {order.amount}
+                                    {order.totalPrice}$
                                 </td>
                             </tr>
                         ))}

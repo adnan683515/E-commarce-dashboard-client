@@ -23,7 +23,7 @@ const RecentSellers = () => {
     <div className=" rounded-3xl   p-6 w-full h-full ">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="font-semibold text-lg">Recent Sellers</h2>
+        <h2 className="font-semibold text-lg">Recent Shop</h2>
         <button className="text-sm  text-gray-600 cursor-pointer  hover:underline">View All</button>
       </div>
 

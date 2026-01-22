@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Filter, Store, Star, X } from 'lucide-react';
 import sneakers from '../../../assets/sneakers.jpg'
-import { useAppDispatch } from '../../../redux/hook';
-
 import AuthReduxHook from '../../../Hook/AuthReduxHook';
 import type { TProduct } from '../../../redux/features/Products/productSlice';
 import { useQuery } from '@tanstack/react-query';
 import { getCategoriesApi } from '../../../redux/features/Pcetegory/pcet.api';
 import { getProductApi } from '../../../redux/features/Products/product.thunk';
-import type { IProductCategory } from '../Catalog/Catalog';
+import type { IProductCategory, Tmeta } from '../Catalog/Catalog';
+import { recentOderApi } from '../../../redux/features/Oder/recentOderapi';
+import { createAxiosSecure } from '../../../axios/axiosSequre';
 
 
 interface Product {
@@ -30,6 +30,7 @@ const Product: React.FC = () => {
   let [page, setPage] = useState<number>(1)
   const [status, setStatus] = useState<"PENDING" | "APPROVED" | undefined>(undefined);
   const [catId, setCatId] = useState<string | undefined>(undefined)
+  const [metaInfo, setMetaInfo] = useState<Tmeta | null>(null)
 
   // Handle smooth transition timing
   const openModal = (product: TProduct) => {
@@ -49,22 +50,22 @@ const Product: React.FC = () => {
     queryFn: (async () => {
       if (token) {
         const res = await getProductApi({ token, page, status, category: catId })
-        console.log(res)
-        return res
+        console.log(res.data.meta)
+        setMetaInfo(res.data.meta)
+        return res.data.data
       }
     }),
     enabled: !!token,
   })
+
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       if (!token) return [];
-      return await getCategoriesApi({ token });
+      return (await getCategoriesApi({ token })).data.data;
     },
     enabled: !!token,
   });
-
-
 
 
 
@@ -97,7 +98,7 @@ const Product: React.FC = () => {
             }
             className="appearance-none border border-gray-200 rounded-lg px-4 py-2 pr-10 text-sm font-medium cursor-pointer bg-white text-gray-700 outline-none transition-all hover:border-sky-400 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 font-semibold"
           >
-            <option value="">Select Your Choice</option>
+            <option value="">All Products</option>
             <option value="PENDING">Status : Pending</option>
             <option value="APPROVED">Status : Approved</option>
           </select>
@@ -149,7 +150,7 @@ const Product: React.FC = () => {
 
       {/* Grid Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-[14px] sm:text-xl font-bold text-gray-800">Pending Products (235)</h2>
+        <h2 className="text-[14px] sm:text-xl font-bold text-gray-800"> {status && status.toLocaleLowerCase()} products ({metaInfo && metaInfo.total})</h2>
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500 mr-2">Showing   {allProducts?.length} products </span>
           <button
